@@ -19,19 +19,6 @@
                 <NuxtLink href="/user/profile"><img :src="authUser.user?.profile_image_url" class="w-12 h-12 rounded-full object-cover"/></NuxtLink>
                 <button @click="logout" class="flex font-inter text-gray-300 hover:text-gray-400 text-sm"><Icon icon="majesticons:logout-line" width="20" height="20" />Logout</button>
             </div>
-            <!-- <Menu as="div" class="relative">
-                <MenuButton>
-                </MenuButton>
-
-                <MenuItems class="absolute top-full right-0 bg-white border shadow-md font-inter flex gap-3 px-6 py-4 min-w-max whitespace-nowrap">
-                    <MenuItem>
-                        <a href="#" class="text-gray-600 font-medium text-sm hover:text-black transition-colors border-e pe-4 me-4">Profile Settings</a>
-                    </MenuItem>
-                    <MenuItem>
-                        <button @click="logout" class="text-gray-600 font-medium text-sm hover:text-black transition-colors text-left">Logout</button>
-                    </MenuItem>
-                </MenuItems>
-            </Menu> -->
         </div>
     </div>
     
@@ -40,7 +27,6 @@
 
 <script setup>
     import { Icon } from '@iconify/vue'
-    import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
     const authUser = useAuthUserStore()
     const authVenue = useAuthVenueStore()
