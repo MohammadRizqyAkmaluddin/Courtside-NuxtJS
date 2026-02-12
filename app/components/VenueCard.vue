@@ -22,7 +22,7 @@ const sportTypeIds = computed(() => {
       <h2 class="text-lg font-bold line-clamp-1">{{ venue.name }}</h2>
       <div class="flex flex-col gap-4">
         <div class="flex items-center">
-          <BaseIcon v-for="sportId in sportTypeIds"
+          <SportIcon v-for="sportId in sportTypeIds"
             :key="sportId"
             :name="sportId"
             :size="15"

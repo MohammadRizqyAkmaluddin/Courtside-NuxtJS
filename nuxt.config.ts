@@ -22,5 +22,9 @@ export default defineNuxtConfig({
       Inter: [400, 500, 600, 700],
     },
     display: 'swap'
-  }
+  },
+
+  css: [
+    'leaflet/dist/leaflet.css'
+  ]
 })

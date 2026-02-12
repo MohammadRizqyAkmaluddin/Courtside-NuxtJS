@@ -3,13 +3,15 @@ definePageMeta({
   layout: 'master'
 })
 
-import { api } from '~/services/api';
-import type { Venue } from '~/types';
-import { Icon } from '@iconify/vue';
-import type { IconName } from '@/components/BaseIcon.vue'
+import { ref, computed } from 'vue'
+import { api } from '~/services/api'
+import type { Venue } from '~/types'
+import { Icon } from '@iconify/vue'
+import CourtBooking from '@/components/Court.vue'
+import type { IconName } from '@/components/SportIcon.vue'
 
 const route = useRoute()
-const venueId = route.params.id
+const venueId = String(route.params.id)
 
 const venue = ref<Venue | null>(null)
 const loading = ref(true)
@@ -24,6 +26,17 @@ const fetchVenue = async () => {
         loading.value = false
     }
 }
+onMounted(fetchVenue)
+
+const rating = computed(() => {
+  if (!venue.value?.rating?.length) return 0
+
+  const total = venue.value.rating.reduce(
+    (sum: number, r: any) => sum + r.rate,
+    0
+  )
+  return (total / venue.value.rating.length).toFixed(1)
+})
 
 const showModal = ref(false)
 const activeIndex = ref(0)
@@ -74,21 +87,21 @@ const uniqueSportTypes = computed(() => {
   return [...map.values()]
 })
 
-onMounted(fetchVenue)
 </script>
 
 
 <template> 
   <div class="flex flex-col mt-10 px-[100px] mb-20 font-inter">
-    <div v-if="loading">
-      <div class="gap-2 animate-pulse">
-        <div class="h-50 w-50 bg-gray-200 rounded-xl me-2 ms-2 mb-2"></div>
-        <div class="gap-2">
-          <div class="h-40 bg-gray-200 rounded-xl"></div>
-        <div class="h-4 bg-gray-200 mt-3 w-3/4"></div>
-        </div>
+
+    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-3 animate-pulse">
+      <div class="md:col-span-2 h-[280px] md:h-[420px] bg-gray-200 rounded-xl"></div>
+
+      <div class="flex flex-col gap-3">
+        <div class="h-[135px] md:h-[205px] bg-gray-200 rounded-xl"></div>
+        <div class="h-[135px] md:h-[205px] bg-gray-200 rounded-xl"></div>
       </div>
     </div>
+
 
     <div v-else-if="venue">
       <!-- IMAGE MODAL -->
@@ -196,85 +209,68 @@ onMounted(fetchVenue)
           />
       </div>
       
-      <div class="flex flex-col gap-7 mt-10 border-b pb-5">
+      <div class="flex flex-col gap-7 mt-10 border-b pb-10">
 
         <h1 class="text-3xl font-bold">{{ venue.name }}</h1>
-
-        <div class="flex gap-5">
-          <div class="flex flex-col gap-4 border-e pe-5">
-            <div class="flex items-center gap-1">
-              <div class="flex gap-1">
-                <p class="text-gray-700 font-bold">4.5</p>
-                <Icon icon="ic:baseline-star" class="text-orange-400" width="20" height="20" />
+        
+        <div class="flex">
+        
+          <div class="flex flex-col w-1/2 gap-5 me-5">
+            <div class="flex flex-col gap-4">
+              <div class="flex items-center gap-1">
+                <div class="flex gap-1">
+                  <p class="text-gray-700 font-bold">{{ rating }}</p>
+                  <Icon icon="ic:baseline-star" class="text-orange-400" width="20" height="20" />
+                </div>
+                <Icon icon="ph:dot-outline" width="20" height="20" />
+                <p class="text-md text-gray-700">{{ venue.city.city }}, {{ venue.city.province }}</p>
               </div>
-              <Icon icon="ph:dot-outline" width="20" height="20" />
-              <p class="text-md text-gray-700">{{ venue.city.city }}, {{ venue.city.province }}</p>
-            </div>
 
-            <div class="flex gap-2">
-              <div v-for="type in uniqueSportTypes" :key="type.id">
-                <div class="bg-gray-100 p-1 rounded">
-                  <BaseIcon :name="type.icon" :size="20" color="#3A3A3A"/>
+              <div class="flex gap-2">
+                <div v-for="type in uniqueSportTypes" :key="type.id">
+                  <div class="bg-gray-100 p-1 rounded">
+                    <SportIcon :name="type.icon" :size="20" color="#3A3A3A"/>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="flex flex-col gap-2 border-e pe-5">
-            <h2 class="font-semibold">Description</h2>
-            <p class="text-sm">{{ venue.description }}</p>
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <h2 class="font-semibold">Address</h2>
-            <p class="text-sm">{{ venue.address }}</p>
+            <div class="flex flex-col gap-2 text-justify">
+              <h2 class="font-semibold">Information</h2>
+              <p class="text-sm text-gray-700">{{ venue.description }}</p>
+            </div>
+            <div class="flex flex-col gap-5">
+              <h2 class="font-semibold">Facilities</h2>
+              <div class="flex flex-wrap gap-5">
+                <div v-for="facility in venue.facility" :key="facility.id">
+                <FacilityIcon :name="facility.facility_type_id" size="25" color="gray"/>
+              </div>
+            </div>
           </div>
         </div>
 
+        <div class="flex flex-col w-1/2">
+          <VenueMap v-if="venue"
+            :lat="Number(venue.latitude)"
+            :lng="Number(venue.longitude)"
+            :name="venue.name"
+          />
+
+          <NuxtLink :href="venue.link_map" class="flex gap-2 items-center justify-center font-bold text-white bg-blue-900 rounded-br-lg rounded-bl-lg py-1 hover:bg-blue-800">
+            <p>See Location</p>
+            <Icon icon="logos:google-maps" width="18" height="18" />
+          </NuxtLink>
+        </div>
+
+        </div>
       </div>
 
       <div class="mt-8">
         <h2 class="text-xl font-semibold mb-4">Available Courts</h2>
-      
-        <div class="grid grid-cols-3 gap-6">
-          <div
-            v-for="court in venue.court"
-            :key="court.id"
-            class="border rounded-xl overflow-hidden hover:shadow-lg transition"
-          >
-            <img :src="court.image_url"
-              class="h-40 w-full object-cover"
-            />
-      
-            <div class="p-4">
-              <h3 class="font-semibold text-lg">
-                {{ court.name }}
-              </h3>
-      
-              <p class="text-sm text-gray-500">
-                {{ court.sport_type.type }}
-              </p>
-      
-              <p class="font-bold mt-2">
-                Rp {{ court.price.toLocaleString('id-ID') }} / hour
-              </p>
-      
-              <button
-                class="mt-3 w-full bg-black text-white py-2 rounded-lg"
-              >
-                Book Now
-              </button>
-            </div>
-          </div>
-        </div>
+          <!-- DISINI -->
+           <CourtBooking v-if="venue" :venue="venue" />
       </div>
     </div>
   </div>
+
 </template>
-
-
-
-<!-- COURT LIST -->
-
-
-  

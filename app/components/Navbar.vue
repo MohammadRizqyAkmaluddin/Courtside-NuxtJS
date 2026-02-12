@@ -4,6 +4,7 @@
 
         <div class="flex gap-10">
             <NuxtLink to="/court" :class="isCourtActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Explore Venue</NuxtLink>
+            <NuxtLink to="/community" :class="isCommunityActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Sport Community</NuxtLink>
             <NuxtLink to="/sparring" :class="isSparringActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Find Sparring</NuxtLink>
             <NuxtLink to="/cup" :class="isLeagueActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Courtside Cup</NuxtLink>
             <NuxtLink to="/user/activity" :class="isActivityActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">My Activity</NuxtLink>
@@ -38,6 +39,9 @@
     const route = useRoute()
     const isCourtActive = computed(() =>
         route.path.startsWith('/court')
+    )
+    const isCommunityActive = computed(() =>
+        route.path.startsWith('/community')
     )
     const isSparringActive = computed(() =>
         route.path.startsWith('/sparring')

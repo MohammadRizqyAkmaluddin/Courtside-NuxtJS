@@ -4,7 +4,16 @@ export interface City {
   province: string
 }
 
+export interface Facility {
+  id: number
+  venue_id: number
+  facility_type_id: number
+}
 
+export interface SportType {
+  id: number
+  type: string
+}
 
 export interface Court {
   id: number
@@ -13,10 +22,7 @@ export interface Court {
   price: number
   image: string
   image_url: string
-  sport_type: {
-    id: number
-    type: string
-  }
+  sport_type: SportType
 }
 
 export interface VenueImage {
@@ -25,23 +31,58 @@ export interface VenueImage {
   image_url: string
 }
 
+export interface Images {
+  id: number
+  image_url: string
+}
+
+export interface User {
+  id: number
+  name: string
+  email: string
+  phone: string
+  profile_image_url: string
+}
+
 export interface Venue {
   id: number
   name: string
   description: string
   address: string
-  city: {
-    city: string
-    province: string
-  }
-  images: {
-    id: number
-    image_url: string
-  }[]
+  rules: string
+  city: City
+  latitude: string
+  longitude: string
+  link_map: string
+  images: Images[]
   court: Court[]
+  facility: Facility[]
+  rating: Rating[]
 }
 
-export interface SportType {
-    id: number
-    type: string
+export interface Rating {
+  id: number
+  user_id: number
+  venue_id: number
+  rate: number
+  review: string
+  user: User[]
+}
+
+export interface Community {
+  id: number
+  name: string
+  image_url: string
+  membership_fee: number
+  total_member: number
+  max_slot: number
+  description: string
+  day_of_week: number
+  start_time: string
+  end_time: string
+  address: string
+  city: City
+  venue: Venue
+  user: User
+  sport_type: SportType
 }

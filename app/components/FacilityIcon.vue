@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue';
 import { computed } from 'vue';
 
-export type IconName = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
+export type IconName = number
 
 const props = defineProps<{
     name: IconName
@@ -55,7 +55,7 @@ const displayName = computed(() => labels[props.name])
 <template>
     <p class="flex gap-2">
      <Icon :icon="iconName" :width="size ?? 20" :height="size ?? 20" :color="color"/>
-      <span class="me-2 text-[12px]" :style="{ color: textColor ?? color }">
+      <span class="me-2 text-[15px]" :style="{ color: textColor ?? color }">
         {{ displayName }}
       </span>
     </p>

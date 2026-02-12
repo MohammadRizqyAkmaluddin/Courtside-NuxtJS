@@ -1,34 +1,39 @@
-import { defineStore } from "pinia"
+import { defineStore } from 'pinia'
 import { api } from '@/services/api'
 
 export const useAuthUserStore = defineStore('authUser', {
   state: () => ({
     user: null as any,
-    token: null as string | null
+    token: null as string | null,
+    isLoaded: false
   }),
 
   actions: {
     loadFromStorage() {
-    if (import.meta.client) {
+      if (import.meta.client) {
         this.token = localStorage.getItem('user_token')
-    }
+      }
     },
 
+    async fetchUser() {
+      if (!this.token) {
+        this.isLoaded = true
+        return
+      }
 
-    async register(payload: {
-      name: string
-      email: string
-      password: string
-      phone: string
-    }) {
-      const res: any = await api('/auth/user/register', {
-        method: 'POST',
-        body: payload,
-      })
+      try {
+        const res: any = await api('/auth/user/me', {
+          headers: {
+            Authorization: `Bearer ${this.token}`
+          }
+        })
 
-      this.token = res.token
-      this.user = res.user
-      localStorage.setItem('user_token', res.token)
+        this.user = res.user
+      } catch (err) {
+        this.logout()
+      } finally {
+        this.isLoaded = true
+      }
     },
 
     async login(payload: { email: string; password: string }) {
@@ -40,13 +45,6 @@ export const useAuthUserStore = defineStore('authUser', {
       this.token = res.token
       this.user = res.user
       localStorage.setItem('user_token', res.token)
-    },
-
-    async fetchUser() {
-      if (!this.token) return
-
-      const res: any = await api('/auth/user/me')
-      this.user = res.user
     },
 
     logout() {

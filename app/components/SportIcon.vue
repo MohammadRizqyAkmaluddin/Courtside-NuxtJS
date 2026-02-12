@@ -2,9 +2,7 @@
 import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 
-export type IconName =  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
-                'shower' | 'hotshower' | 'bike' | 'car' | 'fnb' | 'changeroom' | 'toilet' | 
-                'wifi' | 'drink' | 'food' | 'mosque' | 'sauna'
+export type IconName =  number
 
 const props = defineProps<{
   name: IconName
@@ -28,22 +26,8 @@ const icons: Record<string | number, string> = {
   12: 'material-symbols-light:water',
   13: 'guidance:pilates',
   14: 'healthicons:exercise-yoga-outline',
-  15: 'streamline-ultimate:shooting-rifle-person-aim',
-  shower: 'mingcute:shower-line',
-  hotshower: 'mingcute:shower-line',
-  fnb: 'material-symbols-light:food-bank-outline',
-  bike: 'hugeicons:motorbike-02',
-  car: 'ph:car-profile-light',
-  changeroom: 'material-symbols-light:checkroom-rounded',
-  toilet: 'fluent-emoji-high-contrast:toilet',
-  wifi: 'tabler:wifi',
-  sauna: 'roentgen:sauna',
-  mosque: 'hugeicons:mosque-05',
-  drink: 'cil:drink',
-  food: 'fluent:food-28-regular',
-  Sportstore : 'fluent:food-28-regular',
+  15: 'streamline-ultimate:shooting-rifle-person-aim'
 }
-
 
 const labels: Record<IconName, string> = {
   1: 'Football',
@@ -60,19 +44,7 @@ const labels: Record<IconName, string> = {
   12: 'Swimming Pool',
   13: 'Pilates',
   14: 'Yoga',
-  15: 'Shooting Range',
-  shower: 'Shower',
-  hotshower: 'Hot Shower',
-  fnb: 'F&B',
-  bike: 'Motorbike Parking',
-  car: 'Car Parking',
-  changeroom: 'Changing Room',
-  toilet: 'Toilet',
-  wifi: 'Wi-Fi',
-  sauna: 'Sauna',
-  mosque: 'Mosque',
-  drink: 'Drink',
-  food: 'Food',
+  15: 'Shooting Range'
 }
 
 const iconName = computed(() => icons[props.name] ?? 'mdi:help-circle')
