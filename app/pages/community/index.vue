@@ -9,32 +9,51 @@ definePageMeta({
   layout: 'master'
 })
 
-const communities = ref<Community[]>([])
+const communities = ref([])
 const loading = ref(true)
+const pagination = ref({
+  total: 0,
+  from: 0,
+  to: 0
+})
 
-const dayLabel = (day: number) => {
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-  return days[day - 1]
-}
+const page = ref(1)
+const lastPage = ref(1)
 
-const formatTime = (time: string) => time.slice(0, 5)
+const filters = reactive({
+  search: '',
+  city_id: '',
+  sport_type_id: ''
+})
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(value)
+const fetchCommunities = async () => {
+  loading.value = true
 
-const fetchCommunity = async () => {
   try {
-    const res = await api('/community') as { community: Community[] }
-    communities.value = res.community
+    const res: any = await api('/communities', {
+      query: {
+        page: page.value,
+        per_page: 5,
+        search: filters.search || undefined,
+        city_id: filters.city_id || undefined,
+        sport_type_id: filters.sport_type_id || undefined
+      }
+    })
+    
+    communities.value = res.data
+    lastPage.value = res.last_page
+    pagination.value.total = res.total
+    pagination.value.from = res.from
+    pagination.value.to = res.to
+
+  } catch (e) {
+    console.error(e)
   } finally {
     loading.value = false
   }
 }
-onMounted(fetchCommunity)
+watch(page, fetchCommunities)
+onMounted(fetchCommunities)
 
 </script>
 
@@ -45,35 +64,20 @@ onMounted(fetchCommunity)
       <div v-for="n in 6" :key="n" class="h-64 bg-gray-200 animate-pulse rounded-xl" />
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div v-for="c in communities" :key="c.id" class="flex flex-col rounded-lg border bg-white shadow-sm overflow-hidden hover:shadow-lg">
-        <NuxtLink :to="`/community/${c.id}`" class="flex flex-col p-3 gap-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-5">
-              <img :src="c.image_url" class="h-[35px] w-[35px] object-cover" alt="community"/>
-              <h2 class="text-md font-semibold">{{ c.name }}</h2>
-            </div>
-              <SportIcon :name="c.sport_type.id" size="15" color="gray" class="bg-gray-100 p-1 rounded"/>
-          </div>
-          <div class="text-sm text-gray-500 mt-2">
-            <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
-                  <Icon icon="uil:schedule" width="17" height="17"/>
-                  <p>{{ dayLabel(c.day_of_week) }},</p>
-                  <div class="flex gap-1">
-                    <p>{{ formatTime(c.start_time) }}</p>-<p>{{ formatTime(c.end_time) }}</p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <Icon icon="tdesign:location" width="17" height="17" />
-                  <div v-if="c.city">{{ c.city.city }}, {{ c.city.province }}</div>
-                  <div v-else>{{ c.venue.city.city }}, {{ c.venue.city.province }}</div>
-                </div>
-              </div>
-              <p class="text-black mt-3">{{ c.description }}</p>
-          </div>
-        </NuxtLink>
-      </div>
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <CommunityCard v-for="community in communities" :key="community" :community="community"/>
+    </div>
+
+    <div class="flex justify-center gap-2 mt-8">
+      <button :disabled="page === 1" @click="page--" class="border p-2 rounded-full">
+        <Icon icon="picon:left" width="15" height="15" />
+      </button>
+      <button v-for="p in lastPage" :key="p" @click="page = p" class="px-3 rounded-full" :class="p === page ? 'bg-blue-900 text-white' : 'border'">
+        {{ p }}
+      </button>
+      <button :disabled="page === lastPage" @click="page++" class="p-2 border rouned-full">
+        <Icon icon="picon:right" width="15" height="15" />
+      </button>
     </div>
   </div>
 </template>
