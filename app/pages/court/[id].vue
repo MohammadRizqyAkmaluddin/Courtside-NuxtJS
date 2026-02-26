@@ -91,7 +91,7 @@ const uniqueSportTypes = computed(() => {
 
 
 <template> 
-  <div class="flex flex-col mt-10 px-[100px] mb-20 font-inter">
+  <div class="flex flex-col min-[1000px]:mt-10 mt-20 px-[100px] mb-20 font-inter">
 
     <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-3 animate-pulse">
       <div class="md:col-span-2 h-[280px] md:h-[420px] bg-gray-200 rounded-xl"></div>

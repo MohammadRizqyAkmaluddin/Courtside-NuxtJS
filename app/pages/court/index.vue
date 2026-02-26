@@ -5,7 +5,7 @@
 
 import { api } from '@/services/api'
 import { Icon } from '@iconify/vue'
-import type { City, Venue, SportType} from '~/types'
+import type { City, SportType} from '~/types'
 
 const cities = ref<City[]>([])
 const sportTypes = ref<SportType[]>([])
@@ -71,9 +71,9 @@ onMounted(fetchSportTypes)
 </script>
 
 <template>
-  <div class="flex flex-col max-w-7xl mx-auto px-6 py-10 mt-5 gap-5 font-inter">
+  <div class="flex flex-col max-w-7xl px-[50px] mx-auto mt-20 gap-5 font-inter">
 
-    <div class="flex items-stratch w-full justify-between gap-2 border-b pb-7">
+    <div class="flex flex-col md:flex-row items-stratch w-full justify-between gap-2 border-b pb-7">
       <div class="flex items-center border border-gray-300 px-2 gap-2 rounded-full text-sm w-full">
         <Icon icon="glyphs:search-1-outline" class="text-gray-400" width="30" height="30" />
         <input 
@@ -84,7 +84,7 @@ onMounted(fetchSportTypes)
         />
       </div>
       <div class="flex gap-2 text-sm">
-        <div class="flex items-center border border-gray-300 rounded-full px-3">
+        <div class="flex w-1/2 py-2 items-center border border-gray-300 rounded-full px-3">
           <Icon icon="grommet-icons:location" class="text-gray-300" width="20" height="20" />
           <select
             v-model="filters.city_id"
@@ -103,7 +103,7 @@ onMounted(fetchSportTypes)
           </select>
         </div>
 
-        <div class="flex items-center border border-gray-300 rounded-full px-3">
+        <div class="flex w-1/2 py-2 items-center border border-gray-300 rounded-full px-3">
           <Icon icon="fluent:sport-basketball-20-regular" class="text-gray-400" width="16" height="16" />
           <select
             v-model="filters.sport_type_id"
@@ -138,7 +138,7 @@ onMounted(fetchSportTypes)
       </div>
     </div>
     
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-4">
       <VenueCard
         v-for="venue in venues"
         :key="venue"

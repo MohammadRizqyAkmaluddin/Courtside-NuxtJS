@@ -1,6 +1,11 @@
 import { useAuthUserStore } from '@/stores/auth-user'
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin(async () => {
   const auth = useAuthUserStore()
-  auth.loadFromStorage()
+  
+  if (auth.token) {
+    await auth.fetchUser()
+  } else {
+    auth.isLoaded = true
+  }
 })

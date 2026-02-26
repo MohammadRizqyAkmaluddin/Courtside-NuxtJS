@@ -58,6 +58,7 @@ export interface Venue {
   court: Court[]
   facility: Facility[]
   rating: Rating[]
+  first_image: Images
 }
 
 export interface Rating {
@@ -69,9 +70,15 @@ export interface Rating {
   user: User[]
 }
 
+export interface Level {
+  id: number
+  level: string
+}
+
 export interface Community {
   id: number
   name: string
+  level: Level
   image_url: string
   membership_fee: number
   total_member: number
@@ -80,7 +87,11 @@ export interface Community {
   day_of_week: number
   start_time: string
   end_time: string
+  venue_name: string
+  map_link: string
   address: string
+  latitude: string
+  longitude: string
   city: City
   venue: Venue
   user: User

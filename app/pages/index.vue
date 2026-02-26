@@ -19,6 +19,7 @@
     </div>
     <div class="flex flex-col px-[100px] mt-[50px] gap-10">
         <div class="flex flex-col mt-10 gap-5">
+            <img src="/dashboard-mockup.png" alt="" class="w-50 mb-10 min-[1000px]:hidden">
             <div class="flex gap-2">
                 <button v-for="tab in tabs"
                         :key="tab"
@@ -40,7 +41,7 @@
                         Details Partnership <Icon icon="material-symbols-light:arrow-circle-right-outline" width="24" height="24" />
                     </NuxtLink>
                 </div>
-                <img src="/dashboard-mockup.png" alt="" class="h-[300px] ms-10">
+                <img src="/dashboard-mockup.png" alt="" class="h-[300px] ms-10 hidden min-[1000px]:flex">
             </div>
             <div v-if="activeTab === 'PLAYER'" class="flex gap-3">
                 <div class="flex flex-col gap-2">
@@ -50,27 +51,23 @@
                         Find Venues <Icon icon="material-symbols-light:arrow-circle-right-outline" width="24" height="24" />
                     </NuxtLink>
                 </div>
-                <img src="/dashboard-mockup.png" alt="" class="h-[300px] ms-10">
+                <img src="/dashboard-mockup.png" alt="" class="h-[300px] ms-10 hidden min-[1000px]:flex">
             </div>
         </div>
         
-        <div class="flex font-inter items-start gap-5 border-t pt-20 mt-10">
-            <div class="flex gap-2">
-                <img src="/cup.png" alt="" class="h-[300px] rounded-[20px]">
-            </div>
-            <div class="flex flex-col gap-2 ms-10">
+        <div class="flex flex-col min-[1000px]:flex-row font-inter items-start gap-5 border-t pt-20 mt-10">
+            <img src="/cup.png" alt="" class="w-[500px] rounded-[20px] ">
+            <div class="flex flex-col gap-2 min-[1000px]:ms-10">
                 <h1 class="text-3xl font-bold">Join our competitive tournaments <br> across multiple sports</h1>
-                <p class="text-lg font-inter text-gray-600">Take part in a wide selection of competitions from Courtside and other competition operators. <br> Experience the excitement of teaming up on the pitch with thousands of other amateur teams now!</p>
+                <p class="text-lg font-inter text-gray-600">Take part in a wide selection of competitions from Courtside and other competition operators. Experience the excitement of teaming up on the pitch with thousands of other amateur teams now!</p>
                 <NuxtLink href="#" class="flex gap-2 items-center justify-between font-inter text-lg py-1 px-5 border border-blue-900 rounded-full text-blue-900 mt-5 hover:bg-blue-100">
                     Check Tournaments List<Icon icon="material-symbols-light:arrow-circle-right-outline" width="24" height="24" />
                 </NuxtLink>
             </div>
         </div>
 
-        <div class="flex font-inter items-center justify-center gap-5 border-t pt-20 mt-10">
-            <div class="flex gap-2">
-                <img src="/sparring-mockup.png" alt="" class="h-[500px]">
-            </div>
+        <div class="flex flex-col md:flex-row font-inter items-center justify-center gap-5 border-t pt-20 mt-10">
+            <img src="/sparring-mockup.png" alt="" class="h-[500px] sm:mb-10">
             <div class="flex flex-col gap-2 text-start">
                 <h1 class="text-3xl font-bold">Find your sparring partner</h1>
                 <p class="text-lg font-inter text-gray-600">Now you don't have to worry about finding sparring partners. <br> Easily make new friends and opponents every week, only on the Courtside app!</p>

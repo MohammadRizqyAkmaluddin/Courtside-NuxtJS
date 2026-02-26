@@ -1,5 +1,3 @@
-// export const api = $fetch.create({ baseURL: 'http://localhost:8000/api', headers: { Accept: 'application/json', 'Content-Type': 'application/json' } })
-
 export const api = $fetch.create({
   baseURL: 'http://localhost:8000/api',
   onRequest({ options }) {
@@ -9,7 +7,9 @@ export const api = $fetch.create({
       Accept: 'application/json',
       'Content-Type': 'application/json',
       ...(options.headers || {}),
-      ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+      ...(auth.token?.value
+        ? { Authorization: `Bearer ${auth.token.value}` }
+        : {}),
     }
   },
 })

@@ -2,11 +2,15 @@ import { defineStore } from 'pinia'
 import { api } from '@/services/api'
 
 export const useAuthUserStore = defineStore('authUser', {
-  state: () => ({
-    user: null as any,
-    token: null as string | null,
-    isLoaded: false
-  }),
+  state: () => {
+    const token = useCookie<string | null>('user_token')
+    
+    return {
+      user: null as any,
+      token,
+      isLoaded: false
+    }
+  },
 
   actions: {
     loadFromStorage() {
@@ -44,13 +48,11 @@ export const useAuthUserStore = defineStore('authUser', {
 
       this.token = res.token
       this.user = res.user
-      localStorage.setItem('user_token', res.token)
     },
 
     logout() {
       this.user = null
       this.token = null
-      localStorage.removeItem('user_token')
     }
   }
 })

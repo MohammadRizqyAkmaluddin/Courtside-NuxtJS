@@ -213,15 +213,15 @@ const getDurationMinutes = (start: any, end: any) => {
     <!-- STEP 1 : DATE -->
     <div v-if="step === 1" class="p-6">
 
-    <div v-if="loadingDates" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="i in 16" :key="i" class="h-[72px] border rounded-xl p-4 animate-pulse flex justify-between items-center">
-            <!-- Day -->
-            <div class="h-4 w-10 bg-gray-200 rounded"></div>
+      <div v-if="loadingDates" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div v-for="i in 16" :key="i" class="h-[72px] border rounded-xl p-4 animate-pulse flex justify-between items-center">
+              <!-- Day -->
+              <div class="h-4 w-10 bg-gray-200 rounded"></div>
 
-            <!-- Date number -->
-            <div class="h-6 w-6 bg-gray-200 rounded"></div>
-        </div>
-    </div>
+              <!-- Date number -->
+              <div class="h-6 w-6 bg-gray-200 rounded"></div>
+          </div>
+      </div>
 
         
       <div v-else >

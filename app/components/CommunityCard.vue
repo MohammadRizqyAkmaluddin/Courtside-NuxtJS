@@ -13,23 +13,19 @@ const dayLabel = (day) => {
 
 const formatTime = (time) => time.slice(0, 5)
 
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(value)
-
 </script>
 
 <template>
     <NuxtLink :to="`/community/${community.id}`" class="flex flex-col p-3 font-inter border rounded-lg shadow transition-shadow duration-200 hover:shadow-lg">
         <div class="flex justify-between">
             <div class="flex gap-3 items-center">
-                <img :src="community.image_url" class="h-10 w-20 object-cover">
+                <img :src="community.image_url" class="h-10 w-10 object-cover">
                 <div class="flex flex-col">
                     <h2 class="text-lg font-semibold">{{ community.name }}</h2>
-                    <SportIcon :key="community.sport_type?.id" :name="community.sport_type?.id" color="gray" :size="17"/>
+                    <div class="flex gap-2">
+                        <SportIcon :key="community.sport_type?.id" :name="community.sport_type?.id" color="gray" :size="17" class="bg-gray-100 w-fit rounded-lg"/>
+                        <p class="text-sm text-gray-600">{{ community.level.level }} Level</p>
+                    </div>
                 </div>
             </div>
         </div>
