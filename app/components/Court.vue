@@ -281,7 +281,12 @@ const getDurationMinutes = (start: any, end: any) => {
                 <div class="flex flex-col">
                     <p class="text-[12px] font-semibold">{{ getDurationMinutes(s.start, s.end) }} Min</p>
                     <p class="font-semibold mb-2 text-md">{{ s.start }} - {{ s.end }}</p>
-                    <p class="text-sm">Rp{{ new Intl.NumberFormat('id-ID').format(s.price) }} {{ venue.court.session_duration }}</p>
+                    <div v-if="s.available">
+                      <p class="text-sm">Rp{{ new Intl.NumberFormat('id-ID').format(s.price) }} {{ venue.court.session_duration }}</p>
+                    </div>
+                    <div v-else>
+                      <p class="text-sm">Unavailable</p>
+                    </div>
                 </div>
             </button>
         </div>

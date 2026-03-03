@@ -38,13 +38,14 @@ export const useAuthUserStore = defineStore('authStore', {
         async fetchUser() {
             if (!this.token) return
 
-            const res: any = await api('/auth/user/me', {
-                headers: {
-                Authorization: `Bearer ${this.token}`,
-                },
-            })
-
-            this.user = res.user
+            try {
+                const res: any = await api('/auth/user/me')
+                this.user = res.user
+            } catch (err: any) {
+                if (err?.status === 401) {
+                    this.logout()
+                }
+            }
         },
 
         logout() {
