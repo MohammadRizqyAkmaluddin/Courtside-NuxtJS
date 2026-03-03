@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { useAuthUserStore } from '@/stores/auth-user'
 
-const auth = useAuthUserStore()
+useHead({
+  script: [
+    {
+      src: 'https://app.sandbox.midtrans.com/snap/snap.js',
+      'data-client-key': 'Mid-client-LMahtvxbs_fwJuKR',
+      defer: true
+    }
+  ]
+})
 
-if (import.meta.client) {
-  auth.loadFromStorage()
-  auth.fetchUser()
-}
 </script>
 
 <template>

@@ -138,7 +138,7 @@ const showCancelModal = ref(false)
 
       <button
         class="w-full bg-blue-900 text-white py-2 rounded"
-        @click="navigateTo(`/checkout?booking=${bookingHold.id}`)"
+        @click="navigateTo(`/booking/payment?id=${bookingId}`)"
       >
         Proceed to Payment
       </button>

@@ -1,15 +1,13 @@
 export const api = $fetch.create({
   baseURL: 'http://localhost:8000/api',
   onRequest({ options }) {
-    const auth = useAuthUserStore()
+    const token = localStorage.getItem('user_token')
 
-    options.headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-      ...(auth.token?.value
-        ? { Authorization: `Bearer ${auth.token.value}` }
-        : {}),
+    if (token) {
+      options.headers = {
+        ...options.headers,
+        Authorization: `Bearer ${token}`
+      }
     }
-  },
+  }
 })
