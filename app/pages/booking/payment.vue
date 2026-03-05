@@ -31,6 +31,29 @@ onMounted(async () => {
   }
 })
 
+const checkPaymentStatus = async () => {
+  let attempts = 0
+
+  const interval = setInterval(async () => {
+    attempts++
+
+    const res: any = await api(`/booking-holds/${bookingId}`)
+
+    if (!res) return
+
+    // kalau header sudah tidak ada berarti sudah diproses & dihapus
+    if (res.status === 404) {
+      clearInterval(interval)
+      window.location.href = '/'
+    }
+
+    if (attempts > 10) {
+      clearInterval(interval)
+      alert('Waiting payment confirmation...')
+    }
+  }, 2000)
+}
+
 const payNow = () => {
   const checkSnap = setInterval(() => {
     if ((window as any).snap) {
@@ -38,8 +61,7 @@ const payNow = () => {
 
       ;(window as any).snap.pay(snapToken.value, {
         onSuccess() {
-          alert('Payment Success!')
-          window.location.href = '/'
+          checkPaymentStatus()
         },
         onPending() {
           alert('Waiting for payment')
