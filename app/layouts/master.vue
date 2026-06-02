@@ -14,7 +14,7 @@
     <div class="min-h-screen flex flex-col">
     <Navbar></Navbar>
 
-    <main class="flex-1 mt-10">
+    <main class="flex-1 mt-10 font-inter">
         <slot />
     </main>
 

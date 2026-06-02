@@ -66,6 +66,7 @@ const fetchCommunities = async () => {
     loading.value = false
   }
 }
+
 watch(page, fetchCommunities)
 onMounted(fetchCommunities)
 onMounted(fetchCities)
@@ -73,7 +74,7 @@ onMounted(fetchSportTypes)
 </script>
 
 <template>
-  <div class="flex flex-col mx-auto gap-5 mt-20 font-inter px-[100px]">
+  <div class="flex flex-col mx-[40px] sm:mx-[40px] lg:mx-[100px] mt-16 gap-5 font-inter">
 
     <div class="flex flex-col md:flex-row items-stratch w-full justify-between gap-2 border-b pb-7">
       <div class="flex items-center border border-gray-300 px-2 gap-2 rounded-full text-sm w-full">

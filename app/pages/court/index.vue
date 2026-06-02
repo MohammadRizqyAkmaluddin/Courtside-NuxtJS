@@ -71,7 +71,7 @@ onMounted(fetchSportTypes)
 </script>
 
 <template>
-  <div class="flex flex-col max-w-7xl px-[50px] mx-auto mt-20 gap-5 font-inter">
+  <div class="flex flex-col mx-[40px] sm:mx-[40px] lg:mx-[100px] mt-16 gap-5 font-inter">
 
     <div class="flex flex-col md:flex-row items-stratch w-full justify-between gap-2 border-b pb-7">
       <div class="flex items-center border border-gray-300 px-2 gap-2 rounded-full text-sm w-full">

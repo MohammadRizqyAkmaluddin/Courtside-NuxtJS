@@ -55,7 +55,7 @@ const displayName = computed(() => labels[props.name])
     
     <p class="flex gap-2 items-center">
      <Icon :icon="iconName" :width="size ?? 20" :height="size ?? 20" :color="color"/>
-      <span class="me-2 text-sm" :style="{ color: textColor ?? color }">
+      <span class="me-2 text-[13px]" :style="{ color: textColor ?? color }">
         {{ displayName }}
       </span>
     </p>

@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { Icon } from '@iconify/vue'
 
 const props = defineProps({
   venue: Object
@@ -16,10 +17,14 @@ const sportTypeIds = computed(() => {
 
 
 <template>
-  <NuxtLink :to="`/court/${venue.id}`" class="flex flex-col font-inter border rounded-lg shadow hover:shadow-xl transition-shadow duration-200">
-    <img :src="venue.images?.[0]?.image_url" class="h-40 w-full object-cover rounded-t-lg">
+  <NuxtLink :to="`/court/${venue.id}`" class="group flex flex-col font-inter border rounded-lg shadow overflow-hidden hover:shadow-xl transition-shadow duration-200">
+    <img :src="venue.images?.[0]?.image_url" class="h-40 w-full object-cover rounded-t-lg transition-transform duration-300 ease-out group-hover:scale-105">
     <div class="flex flex-col items-stretch py-3 px-4 gap-2">
-      <h2 class="text-lg font-bold line-clamp-1">{{ venue.name }}</h2>
+      <div class="flex items-center gap-1">
+        <p class="text-gray-700 font-bold text-[12px]">{{ venue.avg_rating }}</p>
+        <Icon icon="ic:baseline-star" class="text-orange-400" width="14" height="14" />
+        <h2 class="text-lg font-bold line-clamp-1">{{ venue.name }}</h2>
+      </div>
       <div class="flex flex-col gap-4">
         <div class="flex items-center">
           <SportIcon v-for="sportId in sportTypeIds"

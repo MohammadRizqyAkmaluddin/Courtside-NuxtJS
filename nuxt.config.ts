@@ -18,6 +18,7 @@ export default defineNuxtConfig({
       'Plus Jakarta Sans': [300, 400, 500, 600, 700],
       'DM Serif Display': true,
       'Montserrat': [400, 500, 600, 700],
+      'Gelasio': true,
       Raleway: [300, 400, 500, 600, 700],
       Inter: [400, 500, 600, 700],
     },

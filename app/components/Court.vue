@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { api } from '~/services/api'
 import { Icon } from '@iconify/vue'
 import { useDateFormat } from '~/composable/useDateFormat';
+import { formatNumber } from '#imports';
 
 const { monthYear, fullDate } = useDateFormat()
 
@@ -25,7 +26,7 @@ const isAuthenticated = computed(() => !!auth.user?.id)
 const selectedCourtId = ref<number | null>(null)
 
 const showSchedule = ref(false)
-const step = ref<1 | 2 | 3>(1)
+const step = ref<1 | 2 | 3 | 4>(1)
 
 const loadingDates = ref(false)
 const loadingSessions = ref(false)
@@ -35,6 +36,10 @@ const selectedDate = ref<string | null>(null)
 
 const sessions = ref<any[]>([])
 const selectedSessions = ref<any[]>([])
+
+const additionals = ref<any[]>([])
+const selectedAdditions = ref<any[]>([])
+const loadingAdditionals = ref(false)
 
 const guestContact = ref('')
 const guestName = ref('')
@@ -49,6 +54,7 @@ const openSchedule = async (courtId: number) => {
 
   selectedDate.value = null
   selectedSessions.value = []
+  selectedAdditions.value = []
   guestContact.value = ''
   guestName.value = ''
 
@@ -90,17 +96,56 @@ const toggleSession = (session: any) => {
     s => s.start === session.start && s.end === session.end
   )
 
-  idx === -1
-    ? selectedSessions.value.push(session)
-    : selectedSessions.value.splice(idx, 1)
+  // kalau sudah dipilih → unselect
+  if (idx !== -1) {
+    selectedSessions.value.splice(idx, 1)
+    return
+  }
+
+  // kalau belum dipilih tapi sudah 3 → stop
+  if (selectedSessions.value.length >= 3) {
+    return
+  }
+
+  // kalau masih < 3 → tambah
+  selectedSessions.value.push(session)
 }
+
+const continueAddition = async () => {
+  if (!selectedSessions.value.length || !selectedCourtId.value) return
+  step.value = 3
+  loadingAdditionals.value = true
+
+  try {
+    const res: any = await api(`/courts/${selectedCourtId.value}/availability/additional`)
+    additionals.value = res.data
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loadingAdditionals.value = false
+  }
+}
+
+const toggleAdditional = (item: any) => {
+  const idx = selectedAdditions.value.findIndex(a => a.id === item.id)
+
+  if (idx !== -1) {
+    selectedAdditions.value.splice(idx, 1)
+  } else {
+    selectedAdditions.value.push(item)
+  }
+}
+
+const additionTotal = computed(() =>
+  selectedAdditions.value.reduce((sum, a) => sum + a.price, 0)
+)
 
 const continueFromSession = () => {
   if (!selectedSessions.value.length) return
 
   isAuthenticated.value
     ? submitHold()
-    : (step.value = 3)
+    : (step.value = 4)
 }
 
 const backStep1 = () => {
@@ -109,14 +154,19 @@ const backStep1 = () => {
     selectedDate.value = null
     sessions.value = []
     selectedSessions.value = []
+    selectedAdditions.value = []
 }
 const backStep2 = () => {
     step.value = 2
+
+    selectedAdditions.value = []
+}
+const backStep3 = () => {
+    step.value = 3
+    guestContact.value = ''
+    guestName.value = ''
 }
 
-/* =====================
-   SUBMIT
-===================== */
 const submitHold = async () => {
   if (!selectedCourtId.value) return
 
@@ -131,13 +181,14 @@ const submitHold = async () => {
       court_id: selectedCourtId.value,
       date: selectedDate.value,
       sessions: selectedSessions.value,
+      additions: selectedAdditions.value,
       guest_name: guestName.value,
       ...(isAuthenticated.value ? {} : { guest_contact: guestContact.value }),
     }
   })
 
   showSchedule.value = false
-  navigateTo(`/booking/summary?id=${res.booking_hold_header_id}`)
+  navigateTo(`/user/activity`)
 }
 
 const getDurationMinutes = (start: any, end: any) => {
@@ -152,13 +203,10 @@ const getDurationMinutes = (start: any, end: any) => {
   if (endMinutes <= startMinutes) {
     endMinutes += 24 * 60
   }
-
   return endMinutes - startMinutes
 }
 
-
 </script>
-
 
 <template>
 <div class="font-inter grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -200,8 +248,14 @@ const getDurationMinutes = (start: any, end: any) => {
             <h2 class="flex items-center gap-2 text-md font-semibold text-white border-e pe-5 me-5">Available Session <Icon icon="mdi:update" width="20" height="20" /></h2>
             <p class="text-sm text-white">{{ fullDate(selectedDate) }}</p>
         </div>
-        <div v-else class="flex items-center gap-1">
+        <div v-else-if="step === 3" class="flex items-center gap-1">
             <button @click="backStep2" class="text-sm text-gray-300 hover:text-white">
+                <Icon icon="ic:baseline-arrow-back-ios" width="20" height="20" />
+            </button>
+            <h2 class="flex items-center gap-2 text-md font-semibold text-white">Additional Service <Icon icon="basil:add-outline" width="20" height="20" /></h2>
+        </div>
+        <div v-else="step === 4" class="flex items-center gap-1">
+            <button @click="backStep3" class="text-sm text-gray-300 hover:text-white">
                 <Icon icon="ic:baseline-arrow-back-ios" width="20" height="20" />
             </button>
             <h2 class="flex items-center gap-2 text-md font-semibold text-white">Fill Your Information <Icon icon="bxs:contact" width="20" height="20" /></h2>
@@ -264,11 +318,11 @@ const getDurationMinutes = (start: any, end: any) => {
 
 
       <div v-else class="mt-5">
-        <p class="text-sm text-gray-400 mb-5">You can book more than one available sessions</p>
+        <p class="text-sm text-gray-400 mb-5">You can select up to three session for each transaction</p>
         <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-            <button v-for="s in sessions"
+          <button v-for="s in sessions"
             :key="s.start"
-            :disabled="!s.available"
+            :disabled="!s.available || (selectedSessions.length >= 3 && !selectedSessions.find(x => x.start === s.start && x.end === s.end))"
             @click="toggleSession(s)"
             class="border rounded-lg p-3 text-left4 shadow-sm hover:shadow-md"
             :class="[
@@ -282,7 +336,7 @@ const getDurationMinutes = (start: any, end: any) => {
                     <p class="text-[12px] font-semibold">{{ getDurationMinutes(s.start, s.end) }} Min</p>
                     <p class="font-semibold mb-2 text-md">{{ s.start }} - {{ s.end }}</p>
                     <div v-if="s.available">
-                      <p class="text-sm">Rp{{ new Intl.NumberFormat('id-ID').format(s.price) }} {{ venue.court.session_duration }}</p>
+                      <p class="text-sm">Rp{{ formatNumber(s.price) }} {{ venue.court.session_duration }}</p>
                     </div>
                     <div v-else>
                       <p class="text-sm">Unavailable</p>
@@ -291,14 +345,67 @@ const getDurationMinutes = (start: any, end: any) => {
             </button>
         </div>
       </div>
+
       <div class="mt-5 flex justify-end">
-        <button class="cursor-pointer font-bold bg-blue-900 text-white rounded-full px-5 py-2 hover:bg-blue-800" :disabled="selectedSessions.length === 0" @click="continueFromSession">
-            Continue
+        <button class="cursor-pointer font-bold bg-blue-900 text-white rounded-full px-5 py-2 hover:bg-blue-800" :disabled="selectedSessions.length === 0" @click="continueAddition">
+            Next
+        </button>
+      </div>
+    </div>
+    
+    <div v-if="step === 3" class="px-6">
+
+      <div v-if="loadingAdditionals" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+        <div v-for="i in 6" :key="i" class="p-4 border rounded-lg animate-pulse space-y-2">
+          <div class="h-4 w-24 bg-gray-200 rounded"></div>
+          <div class="h-3 w-full bg-gray-200 rounded"></div>
+          <div class="h-3 w-20 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+
+      <div v-else class="mt-5">
+        <p class="text-sm text-gray-400 mb-5">
+          Additional services are optional, you can choose multiple.
+        </p>
+
+        <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(350px,1fr))]">
+          <label v-for="add in additionals" :key="add.id"
+            class="flex items-start gap-3 border rounded-lg p-3 cursor-pointer justify-between shadow-sm hover:shadow-md"
+            :class="selectedAdditions.find(x => x.id === add.id) && 'bg-blue-50 border-blue-800'"
+          >
+            <div class="flex flex-col">
+              <div class="flex justify-between border-b mb-2 pb-2">
+                <h2 class="font-semibold text-sm">{{ add.additional_type.addon }}</h2>
+                <p class="text-sm">Rp{{ formatNumber(add.price) }}</p>
+              </div>
+              <p class="text-[12px] text-gray-500">{{ add.description }}</p>
+            </div>
+          
+            <input
+              type="checkbox"
+              class="hidden"
+              :checked="selectedAdditions.find(x => x.id === add.id)"
+              @change="toggleAdditional(add)"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div class="mt-5 flex justify-between">
+        <div class="flex gap-2 items-center">
+          <p class="text-sm font-semibold">Total Additional:</p>
+          <p class="text-sm">Rp {{ formatNumber(additionTotal) }}</p>
+        </div>
+        <button
+          class="cursor-pointer font-bold bg-blue-900 text-white rounded-full px-5 py-2 hover:bg-blue-800"
+          @click="continueFromSession"
+        >
+          Continue
         </button>
       </div>
     </div>
 
-    <div v-if="step === 3" class="flex flex-col gap-3 p-4">
+    <div v-if="step === 4" class="flex flex-col gap-3 p-4">
       <div class="flex flex-col">
         <p class="text-sm text-gray-400 mb-5">We will send your booking receipt via WhatsApp</p>
         <div class="flex flex-col gap-3">

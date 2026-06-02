@@ -37,13 +37,23 @@ const parsedDescription = computed(() => {
 })
 
 const showLogin = ref(false)
+const showRegister = ref(false)
 
 const error = ref('')
 const loadingLogin = ref(false)
 const loadingJoin = ref(false)
 
+const openRegister = () => {
+    showRegister.value  = true
+    showLogin.value = false
+}
+const closeRegister = () => {
+    showRegister.value = false
+}
+
 const openLogin = () => {
     showLogin.value = true
+    showRegister.value  = false
 }
 const closeLogin = () => {
     showLogin.value = false
@@ -69,6 +79,26 @@ const submitLogin = async () => {
         showJoin.value = true
         step.value = 1
     }
+}
+
+const registerForm = reactive({
+  name: '',
+  email: '',
+  phone: '',
+  password: '',
+})
+
+const submitRegister = async () => {
+  error.value = ''
+
+  try {
+    await auth.register(registerForm)
+  } catch (e) {
+    console.error(e)
+    error.value = 'Gagal register user'
+  } finally {
+    showRegister.value = false
+  }
 }
 
 const showJoin = ref(false)
@@ -281,18 +311,16 @@ const backStep = () => {
 
     <div v-if="showLogin" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center font-inter">
         <div class="bg-white w-[500px] rounded-lg p-10 relative">
+            <div class="flex justify-between">
+                <img src="/logo.png" class="w-[130px] md:w-[150px] mb-5">
+                <button @click="closeLogin">
+                    <Icon icon="ic:baseline-close" width="24" height="24" />
+                </button>
+            </div>
             <form @submit.prevent="submitLogin" >
                 <div class="flex flex-col gap-6 font-inter">
                     <div class="flex flex-col">
-                        <div class="flex justify-between">
-                            <div class="mb-5">
-                                <h2 class="font-bold text-2xl">Login</h2>
-                                <p class="text-gray-500 text-sm">Welcome back! Let’s get you back in the game</p>
-                            </div>
-                            <button @click="closeLogin">
-                                <Icon icon="ic:baseline-close" width="24" height="24" />
-                            </button>
-                        </div>
+                        <p class="text-gray-500 text-sm mb-5">Welcome back! Let’s get you back in the game</p>
                         <div class="flex flex-col gap-2 text-sm">
                             <input v-model="loginForm.email" type="text" name="email" placeholder="Email" class="border w-full px-5 py-2 rounded-[10px] focus:outline-none">
                             <input v-model="loginForm.password" type="password" name="password" placeholder="Password" class="border w-full rounded-[10px] px-5 py-2 focus:outline-none">
@@ -305,10 +333,10 @@ const backStep = () => {
                         </div>
                         <NuxtLink href="#" class="text-sm">Forgot password?</NuxtLink>
                     </div>
-                    <button class="bg-blue-900 text-white py-2 text-md font-medium rounded-[10px]">Login</button>
+                    <button type="submit" class="bg-blue-900 text-white py-2 text-md font-medium rounded-[10px]">Login</button>
                     <div class="flex gap-2 text-sm">
                         <p>New to Courtside?</p>
-                        <NuxtLink href="/auth/register/user" class="text-blue-900 font-black hover:underline">Join Now</NuxtLink>
+                        <button type="button" @click="openRegister" class="text-blue-900 font-black hover:underline">Join Now</button>
                     </div>
                     <div class="flex items-center w-full">
                         <div class="flex-1 border-t border-gray-300"></div>
@@ -316,6 +344,44 @@ const backStep = () => {
                         <div class="flex-1 border-t border-gray-300"></div>
                     </div>
                     <button type="button" class="flex items-center justify-center gap-3 border text-sm rounded-full py-2 hover:bg-gray-100"><img src="/google.png" class="w-[25px]"> Login with Google</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div v-if="showRegister" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center font-inter">
+        <div class="bg-white w-[500px] rounded-lg p-10 relative">
+            <div class="flex justify-between">
+                <img src="/logo.png" class="w-[130px] md:w-[150px] mb-5">
+                <button @click="closeRegister">
+                    <Icon icon="ic:baseline-close" width="24" height="24" />
+                </button>
+            </div>
+            <form @submit.prevent="submitRegister" >
+                <div class="flex flex-col gap-6 font-inter">
+                    <div class="flex flex-col">
+                        <p class="text-gray-500 text-sm mb-5">Join Courtside and enjoy effortless court access</p>
+                        <div class="flex flex-col gap-2 text-sm">
+                            <input v-model="registerForm.name" type="text" name="email" placeholder="Name" class="border w-full px-5 py-2 rounded-[10px] focus:outline-none">
+                            <input v-model="registerForm.phone" type="text" name="email" placeholder="Phone" class="border w-full px-5 py-2 rounded-[10px] focus:outline-none">
+                           <div class="flex gap-2">
+                            <input v-model="registerForm.email" type="text" name="email" placeholder="Email" class="border w-full px-5 py-2 rounded-[10px] focus:outline-none">
+                            <input v-model="registerForm.password" type="password" name="password" placeholder="Password" class="border w-full rounded-[10px] px-5 py-2 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10px]">By clicking Agree & Join, you agree to the Courtside User Agreement, Privacy Policy, and Cookie Policy.</p>
+                    <button class="bg-blue-900 text-white py-2 text-md font-medium rounded-[10px]">Register</button>
+                    <div class="flex gap-2 text-sm">
+                        <p>Already have an account?</p>
+                        <button @click="openLogin" class="text-blue-900 font-black hover:underline">Login</button>
+                    </div>
+                    <div class="flex items-center w-full">
+                        <div class="flex-1 border-t border-gray-300"></div>
+                        <span class="px-3 text-sm text-gray-500">or</span>
+                        <div class="flex-1 border-t border-gray-300"></div>
+                    </div>
+                    <button type="button" class="flex items-center justify-center gap-3 border text-sm rounded-full py-2 hover:bg-gray-100"><img src="/google.png" class="w-[25px]"> Join with Google</button>
                 </div>
             </form>
         </div>

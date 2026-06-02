@@ -9,6 +9,7 @@ import type { Venue } from '~/types'
 import { Icon } from '@iconify/vue'
 import CourtBooking from '@/components/Court.vue'
 import type { IconName } from '@/components/SportIcon.vue'
+import { formatDate } from '#imports'
 
 const route = useRoute()
 const venueId = String(route.params.id)
@@ -16,27 +17,20 @@ const venueId = String(route.params.id)
 const venue = ref<Venue | null>(null)
 const loading = ref(true)
 
-const images = computed(() => venue.value?.images ?? [])
+const showAllReview = ref(false)
+const showReview = ref(false)
 
+const images = computed(() => venue.value?.images ?? [])
 
 const fetchVenue = async () => {
     try {
-        venue.value = await api(`/venues/${venueId}`)
+        const res: any = await api(`/venues/${venueId}`)
+        venue.value = res.data
     } finally {
         loading.value = false
     }
 }
 onMounted(fetchVenue)
-
-const rating = computed(() => {
-  if (!venue.value?.rating?.length) return 0
-
-  const total = venue.value.rating.reduce(
-    (sum: number, r: any) => sum + r.rate,
-    0
-  )
-  return (total / venue.value.rating.length).toFixed(1)
-})
 
 const showModal = ref(false)
 const activeIndex = ref(0)
@@ -86,6 +80,21 @@ const uniqueSportTypes = computed(() => {
 
   return [...map.values()]
 })
+
+const displayedReview = computed(() => {
+  if (showAllReview.value) {
+    return venue.value?.booking
+  }
+  return venue.value?.booking.slice(0, 6)
+})
+
+const openReview = () => {
+  showReview.value = true
+}
+
+const closeReview = () => {
+  showReview.value = false
+}
 
 </script>
 
@@ -210,16 +219,13 @@ const uniqueSportTypes = computed(() => {
       </div>
       
       <div class="flex flex-col gap-7 mt-10 border-b pb-10">
-
         <h1 class="text-3xl font-bold">{{ venue.name }}</h1>
-        
         <div class="flex">
-        
           <div class="flex flex-col w-1/2 gap-5 me-5">
             <div class="flex flex-col gap-4">
               <div class="flex items-center gap-1">
                 <div class="flex gap-1">
-                  <p class="text-gray-700 font-bold">{{ rating }}</p>
+                  <p class="text-gray-700 font-bold">{{ venue.avg_rating }}</p>
                   <Icon icon="ic:baseline-star" class="text-orange-400" width="20" height="20" />
                 </div>
                 <Icon icon="ph:dot-outline" width="20" height="20" />
@@ -240,37 +246,241 @@ const uniqueSportTypes = computed(() => {
               <p class="text-sm text-gray-700">{{ venue.description }}</p>
             </div>
             <div class="flex flex-col gap-5">
-              <h2 class="font-semibold">Facilities</h2>
-              <div class="flex flex-wrap gap-5">
-                <div v-for="facility in venue.facility" :key="facility.id">
-                <FacilityIcon :name="facility.facility_type_id" size="25" color="gray"/>
+                <h2 class="font-semibold">Facilities</h2>
+                <div class="flex flex-wrap gap-5">
+                  <div v-for="facility in venue.facility" :key="facility.id">
+                    <FacilityIcon :name="facility.facility_type_id" size="25" color="gray"/>
+                  </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex flex-col w-1/2">
-          <VenueMap v-if="venue"
-            :lat="Number(venue.latitude)"
-            :lng="Number(venue.longitude)"
-            :name="venue.name"
-          />
+          <div class="flex flex-col w-1/2">
+            <VenueMap v-if="venue"
+              :lat="Number(venue.latitude)"
+              :lng="Number(venue.longitude)"
+              :name="venue.name"
+            />
 
-          <NuxtLink :href="venue.link_map" class="flex gap-2 items-center justify-center font-bold text-white bg-blue-900 rounded-br-lg rounded-bl-lg py-1 hover:bg-blue-800">
-            <p>See Location</p>
-            <Icon icon="logos:google-maps" width="18" height="18" />
-          </NuxtLink>
-        </div>
-
+            <NuxtLink :href="venue.link_map" class="flex gap-2 items-center justify-center font-bold text-white bg-blue-900 rounded-br-lg rounded-bl-lg py-1 hover:bg-blue-800">
+              <p>See Location</p>
+              <Icon icon="logos:google-maps" width="18" height="18" />
+            </NuxtLink>
+          </div>
         </div>
       </div>
 
       <div class="mt-8">
         <h2 class="text-xl font-semibold mb-4">Available Courts</h2>
-          <!-- DISINI -->
            <CourtBooking v-if="venue" :venue="venue" />
+      </div>
+      <div class="flex flex-col mt-20">
+        <div class="flex gap-1 mb-2">
+          <h1 class="text-sm font-semibold">User Review</h1>
+          <p class="text-sm text-gray-400">({{ venue.booking.length }})</p>
+        </div>
+        <div class="flex justify-between mb-4">
+          <div class="flex gap-4 items-center">
+            <div class="flex items-end">
+              <p class="text-2xl font-bold">{{ venue.avg_rating }}</p>
+              <p class="text-gray-500 ms-1">/ 5</p>
+            </div>
+            <div class="flex items-center gap-1">
+              <span v-for="i in 5" :key="i">
+                <svg v-if="i <= Math.floor(venue.avg_rating)"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  class="w-5 h-5 text-orange-400"
+                >
+                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                </svg>
+                <svg v-else-if="i === Math.floor(venue.avg_rating) + 1 && venue.avg_rating % 1 !== 0"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  stroke="#EC974F"
+                  class="w-5 h-5"
+                >
+                  <defs>
+                    <linearGradient id="halfGrad">
+                      <stop offset="50%" stop-color="#fb923c"/>
+                      <stop offset="50%" stop-color="white"/>
+                    </linearGradient>
+                  </defs>
+                  <path fill="url(#halfGrad)" d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                </svg>
+                <svg v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="#EC974F"
+                  viewBox="0 0 24 24"
+                  class="w-4 h-4"
+                >
+                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                </svg>
+
+              </span>
+            </div>
+          </div>
+          <button @click="openReview" class="text-sm text-gray-600 hover:text-gray-900">Show all review</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div v-for="booking in displayedReview" class="flex flex-col gap-3 border p-5 rounded-md">
+              <div class="flex items-start gap-3">
+                <img :src="booking.user.profile_image_url" class="w-10 h-10 object-cover rounded-full">
+                <div class="flex flex-col w-full">
+                  <div class="flex justify-between items-start">
+                    <p class="text-sm font-semibold">{{ booking.user.name }}</p>
+                    <div class="flex gap-2">
+                      <p class="text-[12px]">{{ booking.rating.rate }}</p>
+                      <div class="flex items-center">
+                        <span v-for="i in 5" :key="i" class="text-orange-300">
+                          <svg v-if="i <= booking.rating.rate"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            class="w-3 h-3"
+                          >
+                            <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                          </svg>
+  
+                          <svg v-else
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            class="w-3 h-3"
+                          >
+                            <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex">
+                    <p class="text-[12px] text-gray-600">{{ formatDate(booking.rating.updated_at) }}</p>
+                    <Icon icon="bi:dot" width="16" height="16" />
+                    <p class="text-[12px] text-gray-600">{{ booking.court.name }}</p>
+                  </div>
+                  <p v-if="booking.rating.review" class="text-sm text-gray-700 mt-3">{{ booking.rating.review }}</p>
+                  <p v-else class="text-[12px] italic text-gray-400 mt-3">User didn’t leave a comment</p>
+                </div>
+              </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <div v-if="showReview" class="fixed inset-0 bg-black/50 z-50"></div>
+
+  <Transition 
+    enter-active-class="transition duration-300"
+    enter-from-class="translate-y-full"
+    enter-to-class="translate-y-0"
+    leave-active-class="transition duration-300"
+    leave-from-class="translate-y-0"
+    leave-to-class="translate-y-full">
+    <div v-if="showReview" class="fixed inset-0 z-50 flex items-end justify-center font-inter">
+      <div class="flex flex-col gap-5 bg-white w-full min-h-[700px] pb-10">
+        <button @click="closeReview"><Icon icon="grommet-icons:down" width="25" height="25" class="text-center w-full bg-blue-900 text-gray-300 border-b hover:text-gray-100" /></button>
+        <div class="px-[100px]">
+          <div class="flex flex-col mb-5">
+              <div class="flex gap-1 mb-2">
+                <h1 class="text-sm font-semibold">User Review</h1>
+                <p v-if="venue" class="text-sm text-gray-400">({{ venue.booking.length }})</p>
+              </div>
+              <div v-if="venue" class="flex gap-4 items-center">
+                <div class="flex items-end">
+                  <p class="text-2xl font-bold">{{ venue.avg_rating }}</p>
+                  <p class="text-gray-500 ms-1">/ 5</p>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span v-for="i in 5" :key="i">
+                    <svg v-if="i <= Math.floor(venue.avg_rating)"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      class="w-5 h-5 text-orange-400"
+                    >
+                      <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                    </svg>
+                    <svg v-else-if="i === Math.floor(venue.avg_rating) + 1 && venue.avg_rating % 1 !== 0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      stroke="#EC974F"
+                      class="w-5 h-5"
+                    >
+                      <defs>
+                        <linearGradient id="halfGrad">
+                          <stop offset="50%" stop-color="#fb923c"/>
+                          <stop offset="50%" stop-color="white"/>
+                        </linearGradient>
+                      </defs>
+                      <path fill="url(#halfGrad)" d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                    </svg>
+                    <svg v-else
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      stroke="#EC974F"
+                      viewBox="0 0 24 24"
+                      class="w-5 h-5"
+                    >
+                      <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                    </svg>
+
+                  </span>
+                </div>
+              </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 max-h-[600px] md:max-h-[500px] sm:max-h-[900px] overflow-y-auto pe-4">
+            <div v-for="booking in venue?.booking" class="flex flex-col gap-3 border p-5 rounded-md">
+              <div class="flex items-start gap-3">
+                <img :src="booking.user.profile_image_url" class="w-10 h-10 object-cover rounded-full">
+                <div class="flex flex-col w-full">
+                  <div class="flex justify-between">
+                    <p class="text-sm font-semibold">{{ booking.user.name }}</p>
+                    <div class="flex gap-2">
+                      <p class="text-[12px]">{{ booking.rating.rate }}</p>
+                      <div class="flex items-center">
+                        <span v-for="i in 5" :key="i" class="text-orange-300">
+                          <svg v-if="i <= booking.rating.rate"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            class="w-3 h-3"
+                          >
+                            <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                          </svg>
+  
+                          <svg v-else
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            class="w-3 h-3"
+                          >
+                            <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex mt-1">
+                    <p class="text-[12px] text-gray-600">{{ formatDate(booking.rating.updated_at) }}</p>
+                    <Icon icon="bi:dot" width="16" height="16" />
+                    <p class="text-[12px] text-gray-600">{{ booking.court.name }}</p>
+                  </div>
+                  <p v-if="booking.rating.review" class="text-sm text-gray-700 mt-3">{{ booking.rating.review }}</p>
+                  <p v-else class="text-[12px] italic text-gray-400 mt-3">User didn’t leave a comment</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
 </template>
+
