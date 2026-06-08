@@ -1006,7 +1006,7 @@ const onTouchEnd = () => {
         <div v-if="showNotifCreateTransaction && transaction" class="fixed bottom-10 right-7 z-50 w-[400px] py-2 border-blue-900 border-2 px-5 bg-white shadow-md rounded-xl flex flex-col">
             <div class="flex items-center gap-1 text-blue-900 mb-2">
                 <Icon icon="lets-icons:check-fill" class="" width="20" height="20" />
-                <h1 class="text-sm font-bold ">Stock Updated</h1>
+                <h1 class="text-sm font-bold ">New Purchase</h1>
             </div>
             <div class="flex items-center gap-2">
                 <p>Rp{{ formatNumber(transaction.header.total_price) }}</p>

@@ -9,7 +9,6 @@ useHead({
     ]
 })
 
-import { Icon } from '@iconify/vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { api } from '~/services/api'
 import type { City } from '~/types'
@@ -36,13 +35,8 @@ const loginForm = reactive({
 })
 
 const submitLogin = async () => {
-    try {
-        await authVenue.login(loginForm)
-    } catch (e) {
-        console.error(e)
-    } finally {
-        navigateTo('/venue/main')
-    }
+    await authVenue.login(loginForm)
+    await navigateTo('/venue/finance', { replace: true })
 }
 
 const registerForm = reactive({
@@ -50,7 +44,7 @@ const registerForm = reactive({
     email: '',
     phone: '',
     password: '',
-    city_id: '',
+    city_id: 0,
     address: '',
 })
 
@@ -92,7 +86,7 @@ onMounted(fetchCities)
                             <input v-model="loginForm.email" type="text" name="email" placeholder="Email" class="border w-full px-5 py-3 rounded-[10px] focus:outline-none">
                             <input v-model="loginForm.password" type="password" name="password" placeholder="Password" class="border w-full rounded-[10px] px-5 py-3 focus:outline-none">
                         </div>
-                        <NuxtLink href="#" class="text-[11px] text-blue-900 font-bold">Forgot your password?</NuxtLink>
+                        <NuxtLink class="cursor-pointer text-[11px] text-blue-900 font-bold">Forgot your password?</NuxtLink>
                         <button type="submit" :disabled="loginForm.email === '' || loginForm.password === ''" class="bg-blue-900 text-white py-2 text-sm font-bold rounded-md mt-2 disabled:bg-gray-200">
                             Login
                         </button>

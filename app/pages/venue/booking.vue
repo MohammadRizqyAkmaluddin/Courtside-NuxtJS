@@ -691,4 +691,5 @@ onMounted(fetchCancelDetail)
             </div>
         </div>
     </Transition>
+    
 </template>

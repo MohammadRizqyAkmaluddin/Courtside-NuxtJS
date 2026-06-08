@@ -263,6 +263,39 @@ const pay = async () => {
 
 
 
+// MOBILE MODAL HANDLING
+const startY = ref(0)
+const currentY = ref(0)
+const isDragging = ref(false)
+
+const scrollContainer = ref<HTMLElement | null>(null)
+
+const isAtTop = ref(false)
+
+const onTouchStart = (e: TouchEvent) => {
+  const el = scrollContainer.value
+  isAtTop.value = el ? el.scrollTop === 0 : true
+  startY.value = e.touches[0]?.clientY ?? 0
+  isDragging.value = isAtTop.value
+}
+
+const onTouchMove = (e: TouchEvent) => {
+  if (!isDragging.value) return
+
+  e.preventDefault()
+
+  currentY.value = e.touches[0]?.clientY ?? 0
+}
+const onTouchEnd = () => {
+  if (!isDragging.value) return
+  const diff = currentY.value - startY.value
+  if (diff > 100) {
+    showSchedule.value = false
+  }
+  isDragging.value = false
+  currentY.value = 0
+}
+
 onMounted(fetchSummary)
 </script>
 
@@ -292,7 +325,7 @@ onMounted(fetchSummary)
 
 
   <!-- MODAL -->
-<div v-if="showSchedule" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+<div v-if="showSchedule" class="fixed inset-0 bg-black/50 z-50 hidden md:flex items-center justify-center">
   <div class="bg-white w-[900px] rounded-xl pb-3 relative">
     <div class="flex flex-row justify-between top-1 p-5 bg-blue-900 rounded-tr-lg rounded-tl-lg">
         <div v-if="step === 1" class="flex items-center justify-center gap-1">
@@ -473,6 +506,197 @@ onMounted(fetchSummary)
       <button class="cursor-pointer font-bold bg-blue-900 text-white rounded-full px-5 py-2 hover:bg-blue-800" :disabled="!guestContact" @click="submitHold">
         Continue to Summary
       </button>
+    </div>
+  </div>
+</div>
+
+<div v-if="showSchedule" class="md:hidden fixed inset-0 z-50">
+  <div @click="showSchedule = false" class="absolute inset-0 bg-black/50"></div>
+  
+  <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-2xl py-5 transition-transform duration-300 ease-out"
+      :style="{ height: '80%', transform: isDragging ? `translateY(${Math.max(0, currentY - startY)}px)` : 'translateY(0)'}"
+      @touchstart="onTouchStart"
+      @touchmove="onTouchMove"
+      @touchend="onTouchEnd"
+  >
+    <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
+    <div ref="scrollContainer" class="flex flex-col h-full  gap-2 p-4 overflow-y-auto">
+      <div v-if="step === 1" class="flex items-center justify-center gap-1">
+        <h2 class="flex items-center gap-2 text-md font-semibold text-blue-900 border-e pe-5 me-5">Venue Schedule <Icon icon="uil:schedule" width="17" height="17"/></h2>
+        <p class="text-sm text-blue-900">{{ monthYear(availability?.month) }} </p>
+      </div>
+      <div v-else-if="step === 2" class="flex items-center gap-1">
+          <button @click="backStep1" class="text-sm text-gray-300 hover:text-blue-900">
+              <Icon icon="ic:baseline-arrow-back-ios" width="20" height="20" />
+          </button>
+          <h2 class="flex items-center gap-2 text-md font-semibold text-blue-900 border-e pe-5 me-5">Available Session <Icon icon="mdi:update" width="20" height="20" /></h2>
+          <p class="text-sm text-blue-900">{{ fullDate(selectedDate) }}</p>
+      </div>
+      <div v-else-if="step === 3" class="flex items-center gap-1">
+          <button @click="backStep2" class="text-sm text-gray-300 hover:text-white">
+              <Icon icon="ic:baseline-arrow-back-ios" width="20" height="20" />
+          </button>
+          <h2 class="flex items-center gap-2 text-md font-semibold text-blue-900">Additional Service <Icon icon="basil:add-outline" width="20" height="20" /></h2>
+      </div>
+      <div v-else="step === 4" class="flex items-center gap-1">
+          <button @click="backStep3" class="text-sm text-gray-300 hover:text-blue-900">
+              <Icon icon="ic:baseline-arrow-back-ios" width="20" height="20" />
+          </button>
+          <h2 class="flex items-center gap-2 text-md font-semibold text-blue-900">Fill Your Information <Icon icon="bxs:contact" width="20" height="20" /></h2>
+      </div>
+
+      <div v-if="step === 1" class="p-6">
+
+        <div v-if="loadingDates" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="i in 16" :key="i" class="h-[72px] border rounded-xl p-4 animate-pulse flex justify-between items-center">
+                <!-- Day -->
+                <div class="h-4 w-10 bg-gray-200 rounded"></div>
+
+                <!-- Date number -->
+                <div class="h-6 w-6 bg-gray-200 rounded"></div>
+            </div>
+        </div>
+
+          
+        <div v-else >
+          <p class="text-sm text-gray-400 mb-5">Please select your booking date according to the venue's operating dates.</p>
+          <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+              <button v-for="d in availability?.dates"
+              :key="d.date"
+              @click="selectDate(d.date, d.has_available)"
+              :disabled="!d.has_available"
+              class="flex items-center justify-between border rounded-lg p-3 text-left4 shadow-sm hover:shadow-md"
+              :class="[
+                  d.has_available
+                  ? 'hover:shadow-md'
+                  : 'bg-gray-100 text-gray-400 hover:shadow-none',
+              ]"
+              >
+                  <p class="text-xs">{{ d.day }}</p>
+                  <p class="text-xs">{{ d.has_available ? '' : 'Closed' }}</p>
+                  <p class="font-semibold">{{ d.date.split('-')[2] }}</p>
+              </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="step === 2" class="px-6">
+
+        <div v-if="loadingSessions" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6ce">
+            <div v-for="i in 15" :key="i" class="p-5 border rounded-xl animate-pulse space-y-3">
+                <!-- 60 Min -->
+                <div class="h-4 w-16 bg-gray-200 rounded mx-auto"></div>
+
+                <!-- Time range -->
+                <div class="h-6 w-40 bg-gray-200 rounded mx-auto"></div>
+
+                <!-- Price -->
+                <div class="h-4 w-24 bg-gray-200 rounded mx-auto"></div>
+            </div>
+        </div>
+
+
+        <div v-else class="mt-5">
+          <p class="text-sm text-gray-400 mb-5">You can select up to three session for each transaction</p>
+          <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+            <button v-for="s in sessions"
+              :key="s.start"
+              :disabled="!s.available || (selectedSessions.length >= 3 && !selectedSessions.find(x => x.start === s.start && x.end === s.end))"
+              @click="toggleSession(s)"
+              class="border rounded-lg p-3 text-left4 shadow-sm hover:shadow-md"
+              :class="[
+                  !s.available && 'opacity-40 cursor-not-allowed',
+                  selectedSessions.find(
+                  x => x.start === s.start && x.end === s.end
+                  ) && 'bg-blue-50 border-[1.2px] border-blue-800 text-blue-900'
+              ]"
+              >
+                  <div class="flex flex-col">
+                      <p class="text-[12px] font-semibold">{{ getDurationMinutes(s.start, s.end) }} Min</p>
+                      <p class="font-semibold mb-2 text-md">{{ s.start }} - {{ s.end }}</p>
+                      <div v-if="s.available">
+                        <p class="text-sm">Rp{{ formatNumber(s.price) }} {{ venue.court.session_duration }}</p>
+                      </div>
+                      <div v-else>
+                        <p class="text-sm">Unavailable</p>
+                      </div>
+                  </div>
+              </button>
+          </div>
+        </div>
+
+        <div class="mt-5 flex justify-end">
+          <button class="cursor-pointer font-bold bg-blue-900 text-white rounded-full px-5 py-2 hover:bg-blue-800" :disabled="selectedSessions.length === 0" @click="continueAddition">
+              Next
+          </button>
+        </div>
+      </div>
+    
+      <div v-if="step === 3" class="px-6">
+
+        <div v-if="loadingAdditionals" class="grid grid-cols-1  gap-3 mt-5">
+          <div v-for="i in 6" :key="i" class="p-4 border rounded-lg animate-pulse space-y-2">
+            <div class="h-4 w-24 bg-gray-200 rounded"></div>
+            <div class="h-3 w-full bg-gray-200 rounded"></div>
+            <div class="h-3 w-20 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+
+        <div v-else>
+          <p class="text-sm text-gray-400 mb-5 mt-2">
+            Additional services are optional, you can choose multiple.
+          </p>
+
+          <div class="grid grid-cols-1 gap-3">
+            <label v-for="add in additionals" :key="add.id"
+              class="flex items-start gap-3 border rounded-lg p-3 cursor-pointer justify-between shadow-sm hover:shadow-md"
+              :class="selectedAdditions.find(x => x.id === add.id) && 'bg-blue-50 border-blue-800'"
+            >
+              <div class="flex flex-col">
+                <div class="flex justify-between border-b mb-2 pb-2">
+                  <h2 class="font-semibold text-sm">{{ add.additional_type.addon }}</h2>
+                  <p class="text-sm">Rp{{ formatNumber(add.price) }}</p>
+                </div>
+                <p class="text-[12px] text-gray-500">{{ add.description }}</p>
+              </div>
+            
+              <input
+                type="checkbox"
+                class="hidden"
+                :checked="selectedAdditions.find(x => x.id === add.id)"
+                @change="toggleAdditional(add)"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-5 flex flex-col gap-2 justify-between">
+          <div class="flex gap-2 items-center">
+            <p class="text-sm font-semibold">Total Additional:</p>
+            <p class="text-sm">Rp {{ formatNumber(additionTotal) }}</p>
+          </div>
+          <button
+            class="cursor-pointer font-bold bg-blue-900 text-white rounded-full px-5 py-2 hover:bg-blue-800"
+            @click="continueFromSession"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+
+      <div v-if="step === 4" class="flex flex-col gap-3 p-4">
+        <div class="flex flex-col">
+          <p class="text-sm text-gray-400 mb-5">We will send your booking receipt via WhatsApp</p>
+          <div class="flex flex-col gap-3">
+            <input v-model="guestName" placeholder="Your Name" class="border rounded-lg px-3 py-2 w-full text-sm"/>
+            <input v-model="guestContact" placeholder="Ex: 0819-0819-6194" class="border rounded-lg px-3 py-2 w-full text-sm"/>
+          </div>
+        </div>
+        <button class="cursor-pointer font-bold bg-blue-900 text-white rounded-full px-5 py-2 hover:bg-blue-800" :disabled="!guestContact" @click="submitHold">
+          Continue to Summary
+        </button>
+      </div>
+
     </div>
   </div>
 </div>

@@ -6,9 +6,6 @@ const authVenue = useAuthVenueStore()
 
 const route = useRoute()
 
-const isMain = computed(() => 
-  route.path.startsWith('/venue/main')
-)
 const isFinance = computed(() => 
   route.path.startsWith('/venue/finance')
 )
@@ -45,7 +42,6 @@ const logout = () => {
 const mobileMenu = ref(false)
 const toggleMenu = () => mobileMenu.value = !mobileMenu.value
 const closeMenu = () => mobileMenu.value = false
-
 </script>
 
 <template>
@@ -68,7 +64,7 @@ const closeMenu = () => mobileMenu.value = false
       <button class="min-[1000px]:hidden" @click="toggleMenu">
           <Icon icon="mdi:menu" class="w-5 h-5"/>
       </button>
-      <NuxtLink to="/venue/main"><img src="/logo-cms.png" class="min-[1000px]:hidden w-[120px] ms-4 lg:w-[170px]"></NuxtLink>
+      <NuxtLink to="#"><img src="/logo-cms.png" class="min-[1000px]:hidden w-[120px] ms-4 lg:w-[170px]"></NuxtLink>
       <div class="hidden min-[1000px]:flex gap-3 items-center">
         <button class="bg-white rounded-full p-2 text-gray-400">
           <Icon icon="mdi:bell-outline" width="20" height="20" class="hover:text-gray-600"/>
@@ -76,10 +72,10 @@ const closeMenu = () => mobileMenu.value = false
         <NuxtLink to="/venue/setting" class="bg-white rounded-full p-2 text-gray-400">
           <Icon icon="proicons:settings" width="20" height="20" class="hover:text-gray-600"/>
         </NuxtLink>
-        <img :src="authVenue.venue.first_image.image_url" class="w-[80px] h-[40px] object-cover rounded-full">
+        <img v-if="authVenue.venue?.first_image?.image_url" :src="authVenue.venue.first_image.image_url" class="w-[80px] h-[40px] object-cover rounded-full">
       </div>
       <div class="hidden max-[1000px]:flex gap-3 items-center">
-        <img :src="authVenue.venue.first_image.image_url" class="w-[40px] h-[40px] object-cover rounded-full">
+        <img v-if="authVenue.venue?.first_image?.image_url" :src="authVenue.venue.first_image.image_url" class="w-[40px] h-[40px] object-cover rounded-full">
       </div>
     </div>
 
@@ -92,9 +88,6 @@ const closeMenu = () => mobileMenu.value = false
         <div class="flex flex-col justify-between items-center min-h-full py-5">
           
           <nav class="flex flex-col gap-4 w-fit text-gray-400 items-center">
-            <NuxtLink to="/venue/main" class="p-2 rounded-full transition-colors" :class="isMain ? 'bg-blue-900 text-white' : 'bg-white hover:text-gray-600'">
-              <Icon icon="qlementine-icons:items-grid-small-16" width="15" height="15" />
-            </NuxtLink>
             <NuxtLink to="/venue/finance" class="p-2 rounded-full transition-colors" :class="isFinance ? 'bg-blue-900 text-white' : 'bg-white hover:text-gray-600'">
               <Icon icon="si:wallet-detailed-line" width="15" height="15" />
             </NuxtLink>
@@ -136,7 +129,7 @@ const closeMenu = () => mobileMenu.value = false
       <div class="flex flex-col justify-between h-full text-blue-900">
         <nav class="flex flex-col gap-2">
           <div class="flex items-center justify-center mb-10">
-            <NuxtLink to="/venue/main"><img src="/logo-cms.png" class="w-[140px]"></NuxtLink>
+            <NuxtLink class="cursor-pointer"><img src="/logo-cms.png" class="w-[140px]"></NuxtLink>
           </div>
           <NuxtLink to="/venue/finance" class="flex gap-2 items-center rounded-tl-full rounded-bl-full p-3 transition-colors" :class="isFinance ? 'bg-blue-900 text-white' : 'bg-white hover:bg-gray-100'">
             <Icon icon="si:wallet-detailed-line" width="20" height="20" />

@@ -197,45 +197,50 @@ onMounted(fetchActiveBooking)
 <template>
 
   <div v-if="loading" class="animate-pulse">
-    <div class="md:col-span-2 h-[70px] bg-gray-200 rounded-xl mt-[50px] mx-[40px] md:mx-[40px] lg:mx-[100px]"></div>
-    <div class="w-1/2 md:col-span-2 h-[10px] bg-gray-200 rounded-xl mt-4 mx-[40px] md:mx-[40px] lg:mx-[100px]"></div>
+    <div class="md:col-span-2 h-[70px] bg-gray-200 rounded-xl mt-[50px] mx-[20px] md:mx-[40px] lg:mx-[100px]"></div>
+    <div class="w-1/2 md:col-span-2 h-[10px] bg-gray-200 rounded-xl mt-4 mx-[20px] md:mx-[40px] lg:mx-[100px]"></div>
   </div>
-  <div v-else class="mt-[50px] font-inter">
-    <div v-if="holding" class="mb-5">
+  <div v-else class="mt-[30px] md:mt-[50px] font-inter mx-[20px] md:mx-[40px] lg:mx-[100px]">
+    <div v-if="holding" class="mb-5 ">
       <NuxtLink :to="`/booking/summary?id=${holding.id}`">
-        <div class="flex justify-between items-center border mx-[40px] md:mx-[40px] lg:mx-[100px] py-2 px-3 rounded-md bg-blue-900 text-white hover:shadow-lg">
-          <div class="flex gap-10">
-            <div class="flex gap-4">
-              <img :src="holding.court.image_url" class="w-44 h-14 object-cover"/>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-2 py-2 px-3 rounded-md border-blue-900 text-blue-900 md:text-white md:bg-blue-900 hover:shadow-lg">
+          
+          <div class="flex flex-col md:flex-row gap-2 md:gap-10">
+            <div class="flex flex-col md:flex-row gap-4">
+              <img :src="holding.court.image_url" class="w-full md:w-44 md:h-14 object-cover rounded-md"/>
               <div class="flex flex-col">
                 <h2 class="font-bold text-md">{{ holding.venue.name }}</h2>
                 <p class="text-sm">{{ holding.court.name }}</p>
               </div>
             </div>
-            <div class="flex flex-col">
-              <h2 class="font-semibold text-sm">Selected Date</h2>
-              <p class="text-sm">{{ formatDate(holding.booking_date) }}</p>
-            </div>
-            <div class="flex flex-col">
-              <h2 class="font-semibold text-sm">{{ holding.hold.length }} Session </h2>
-              <div class="flex gap-5">
-                <div v-for="s in holding.hold" :key="s.start_time" class="text-sm flex items-center gap-1">
-                  <Icon icon="ic:round-more-time" width="15" height="15" />
-                  {{ formatTime3  (s.start_time) }} - {{ formatTime3(s.end_time) }}
+            <div class="flex flex-col md:flex-row gap-2 md:gap-10">
+              <div class="flex flex-col">
+                <h2 class="font-semibold text-sm">Selected Date</h2>
+                <p class="text-sm">{{ formatDate(holding.booking_date) }}</p>
+              </div>
+              <div class="flex flex-col">
+                <h2 class="font-semibold text-sm">{{ holding.hold.length }} Session </h2>
+                <div class="flex flex-col md:flex-row gap-0 md:gap-5">
+                  <div v-for="s in holding.hold" :key="s.start_time" class="text-sm flex items-center gap-1">
+                    <Icon icon="ic:round-more-time" width="15" height="15" />
+                    {{ formatTime3  (s.start_time) }} - {{ formatTime3(s.end_time) }}
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
-          <div class="flex gap-8">
-            <p class="text-sm font-semibold flex items-center">Rp{{ formatNumber(holding.subtotal) }}</p>
-            <Icon icon="iconoir:page-right" width="30" height="30" class="text-white" />
+
+          <div class="flex gap-8 justify-between w-full md:w-auto mt-6 md:mt-0">
+            <p class="text-lg md:text-sm font-semibold flex items-center">Rp{{ formatNumber(holding.subtotal) }}</p>
+            <Icon icon="iconoir:page-right" width="30" height="30" />
           </div>
         </div>
       </NuxtLink>
       <p class="text-sm text-gray-400 mt-2 mx-[40px] md:mx-[40px] lg:mx-[100px]">You have an unpaid booking hold's</p>
     </div>
 
-    <div class="flex flex-col md:flex-col lg:flex-row mx-[40px] md:mx-[40px] lg:mx-[100px] mt-5 gap-5 font-inter">
+    <div class="flex flex-col md:flex-col lg:flex-row  mt-5 gap-5 font-inter">
       <div class="flex flex-col w-full lg:w-1/3 md:w-full">
         <div class="flex mb-4 justify-between">
           <h1 class="font-semibold">Booking History</h1>
@@ -331,16 +336,16 @@ onMounted(fetchActiveBooking)
           <div class="flex flex-col gap-3">
             <h1 class="font-semibold mb-4">Active Booked Court</h1>
             <button @click="openActiveBooking(booking)" v-for="booking in activeBooking" class="w-full border p-3 rounded-md shadow">
-              <div class="flex justify-between items-start">
+              <div class="flex flex-col md:flex-row justify-between items-start">
                 <div class="flex items-center gap-3">
                   <img :src="booking.venue.first_image.image_url" class="w-[100px] object-cover">
-                  <div class="flex flex-col items-start">
-                    <h2 class="text-xl font-bold">{{ booking.venue.name }}</h2>
+                  <div class="flex flex-col items-start text-sm md:text-xl">
+                    <h2 class="font-bold text-start">{{ booking.venue.name }}</h2>
                     <p>{{ booking.court.name }}</p>
                   </div>
                 </div>
-                <div class="flex flex-col items-start">
-                  <p class="text-[12px] font-bold border-2 border-blue-900 text-blue-900 px-10 py-1 rounded">{{ booking.day_status }}</p>
+                <div class="flex flex-col items-start mt-2 md:mt-0 w-full md:w-auto">
+                  <p class="text-[12px] font-bold border-2 border-blue-900 text-blue-900 px-10 py-1 rounded w-full">{{ booking.day_status }}</p>
                 </div>
               </div>
             </button>

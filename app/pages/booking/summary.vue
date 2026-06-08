@@ -20,13 +20,6 @@ const generatingPayment = ref(false)
 const cancelModal = ref(false)
 const cancelling = ref(false)
 
-const openCancelModal = () => {
-  cancelModal.value = true
-}
-const closeCancelModal = () => {
-  cancelModal.value = false
-}
-
 const fetchDetail = async () => {
   loading.value = true
   try {
@@ -83,14 +76,16 @@ const checkPaymentStatus = async () => {
 
     if (!res) return
 
-    if (res.status === 404) {
+    if (res.payment_status === 'Paid') {
       clearInterval(interval)
-      window.location.href = '/user/activity'
+
+      setTimeout(() => {
+        navigateTo('/user/activity')
+      }, 3000)
     }
 
     if (attempts > 10) {
       clearInterval(interval)
-      alert('Waiting payment confirmation')
     }
   }, 2000)
 }
@@ -103,6 +98,10 @@ const payNow = () => {
       (window as any).snap.pay(snapToken.value, {
         onSuccess() {
           checkPaymentStatus()
+
+          setTimeout(() => {
+            navigateTo('/')
+          }, 3000)
         },
         onPending() {
           alert('Waiting for payment')
@@ -123,34 +122,34 @@ onMounted(fetchDetail)
 <div v-if="loading">Loading ...</div>
 <div v-else>
   <div class="flex flex-col font-inter">
-    <div class="flex items-center gap-2 bg-blue-900 pt-16 sm:pt-16 lg:pt-10 pb-5 px-[40px] md:px-[40px] lg:px-[100px] text-white">
+    <div class="flex items-center gap-2 bg-blue-900 pt-5 md:pt-10 pb-5 px-[40px] md:px-[40px] lg:px-[100px] text-white">
       <NuxtLink to="/user/activity" class="text-sm">Activity</NuxtLink>
       <Icon icon="lsicon:right-filled" width="20" height="20" />
       <NuxtLink class="text-sm font-semibold">Booking Summary</NuxtLink>
     </div>
-    <div class="flex flex-col mt-10 gap-5 items-center mx-[40px] md:mx-[40px] lg:mx-[100px]">
-      <div class="flex border justify-between items-center rounded-md p-3 shadow w-full sm:w-full lg:w-2/3">
-        <div class="flex items-start gap-3">
-          <img :src="detail.venue.first_image.image_url" class="w-[120px] object-cover">
+    <div class="flex flex-col mt-10 gap-5 items-center mx-[20px] md:mx-[40px] lg:mx-[100px]">
+      <div class="flex border justify-between items-start rounded-md p-3 gap-3 shadow w-full lg:w-2/3">
+        <img :src="detail.venue.first_image.image_url" class="w-[100px] md:w-[120px] object-cover">
+        <div class="flex  justify-between w-full items-center ">
           <div class="flex flex-col">
             <p class="font-bold text-lg">{{ detail.venue.name }}</p>
             <p class="text-sm">{{ detail.court.name }}</p>
           </div>
-        </div>
-        <div class="flex flex-col text-gray-600">
-          <h2 class="text-sm font-semibold">Session</h2>
-          <div class="flex flex-col text-[12px] h-fit">
-            <div v-for="session in detail.hold" class="">
-              <p>{{ formatTime3(session.start_time) }} - {{ formatTime3(session.start_time) }}</p>
+          <div class="flex flex-col text-gray-600">
+            <h2 class="text-sm font-semibold">Session</h2>
+            <div class="flex flex-col text-[12px] h-fit">
+              <div v-for="session in detail.hold" class="">
+                <p>{{ formatTime3(session.start_time) }} - {{ formatTime3(session.start_time) }}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="flex w-full sm:w-full lg:w-2/3">
-        <div v-if="detail.additional.length > 0" class="flex flex-col w-1/2 pe-5">
+      <div class="flex flex-col md:flex-row w-full md:w-2/3 gap-6 md:gap-0">
+        <div v-if="detail.additional.length > 0" class="flex flex-col w-full md:w-1/2 md:pe-5">
           <h2 class="flex items-center gap-1 font-semibold text-sm">Additional Service <Icon icon="heroicons:bars-3-bottom-left-16-solid" width="15" height="15" /></h2>
-          <div class="flex flex-col mt-5 gap-3">
-            <div v-for="add in detail.additional" class="border rounded-md p-2">
+          <div class="grid grid-cols-1 mt-5 gap-3 w-full">
+            <div v-for="add in detail.additional" class="border rounded-md p-2 w-full">
               <p class="text-[12px] font-semibold">{{ add.additional.additional_type.addon }}</p>
               <p class="text-[12px] text-gray-400">{{ add.additional.description }}</p>
             </div>
@@ -159,7 +158,7 @@ onMounted(fetchDetail)
         <div class="flex flex-col w-full gap-1" 
               :class="[
                 detail.additional.length > 0
-                ? 'border-s ps-5'
+                ? 'border-s-0 md:border-s md:ps-5'
                 : '',
               ]"
           >

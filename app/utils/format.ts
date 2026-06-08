@@ -9,7 +9,7 @@ export const formatTime = (time: any) => {
   return `${hour}:${minute} ${ampm}`
 }
 
-export const formatTime3 = (time: string) => {
+export const formatTime3 = (time: any) => {
   const [hour, minute] = time.split(':')
 
   return `${hour}:${minute}`

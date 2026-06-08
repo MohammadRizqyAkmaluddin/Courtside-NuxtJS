@@ -71,7 +71,7 @@ onMounted(fetchSportTypes)
 </script>
 
 <template>
-  <div class="flex flex-col mx-[40px] sm:mx-[40px] lg:mx-[100px] mt-16 gap-5 font-inter">
+  <div class="flex flex-col mx-[20px] sm:mx-[20px] lg:mx-[100px] mt-8 md:mt-16 gap-5 font-inter">
 
     <div class="flex flex-col md:flex-row items-stratch w-full justify-between gap-2 border-b pb-7">
       <div class="flex items-center border border-gray-300 px-2 gap-2 rounded-full text-sm w-full">
@@ -123,7 +123,7 @@ onMounted(fetchSportTypes)
       </div>
     </div>
 
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
       <p class="text-sm text-gray-400">Choose the venue that suits you best</p>
       <div class="flex gap-2 items-center">
         <p class="text-gray-400 text-sm">Showing</p>
@@ -131,11 +131,46 @@ onMounted(fetchSportTypes)
       </div>
     </div>
 
-    <div v-if="loading" class="grid grid-cols-3 gap-4">
+    <div v-if="loading" class="hidden md:grid grid-cols-3 gap-4">
       <div v-for="i in 6" :key="i" class="animate-pulse">
         <div class="h-40 bg-gray-200 rounded-xl"></div>
         <div class="h-4 bg-gray-200 mt-3 w-3/4"></div>
       </div>
+    </div>
+    <div v-if="loading" class="flex flex-col md:hidden gap-4">
+        <div
+            v-for="i in 3"
+            :key="i"
+            class="bg-white rounded-xl overflow-hidden border shadow-sm animate-pulse"
+        >
+            <!-- Banner -->
+            <div class="h-40 bg-gray-200"></div>
+
+            <div class="p-4 flex flex-col gap-3">
+                <!-- Rating + Name -->
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-4 bg-gray-200 rounded"></div>
+                    <div class="h-6 w-40 bg-gray-200 rounded"></div>
+                </div>
+
+                <!-- Sports -->
+                <div class="flex gap-4">
+                    <div class="h-4 w-16 bg-gray-200 rounded"></div>
+                    <div class="h-4 w-20 bg-gray-200 rounded"></div>
+                </div>
+
+                <!-- Price -->
+                <div class="flex flex-col gap-2">
+                    <div class="h-4 w-20 bg-gray-200 rounded"></div>
+                    <div class="h-6 w-36 bg-gray-200 rounded"></div>
+                </div>
+
+                <!-- Location -->
+                <div class="flex justify-end">
+                    <div class="h-4 w-24 bg-gray-200 rounded"></div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <div v-else class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-4">

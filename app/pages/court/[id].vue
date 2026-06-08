@@ -96,11 +96,44 @@ const closeReview = () => {
   showReview.value = false
 }
 
+
+// MOBILE MODAL HANDLING
+const startY = ref(0)
+const currentY = ref(0)
+const isDragging = ref(false)
+
+const scrollContainer = ref<HTMLElement | null>(null)
+
+const isAtTop = ref(false)
+
+const onTouchStart = (e: TouchEvent) => {
+  const el = scrollContainer.value
+  isAtTop.value = el ? el.scrollTop === 0 : true
+  startY.value = e.touches[0]?.clientY ?? 0
+  isDragging.value = isAtTop.value
+}
+
+const onTouchMove = (e: TouchEvent) => {
+  if (!isDragging.value) return
+
+  e.preventDefault()
+
+  currentY.value = e.touches[0]?.clientY ?? 0
+}
+const onTouchEnd = () => {
+  if (!isDragging.value) return
+  const diff = currentY.value - startY.value
+  if (diff > 100) {
+    closeReview()
+  }
+  isDragging.value = false
+  currentY.value = 0
+}
 </script>
 
 
 <template> 
-  <div class="flex flex-col min-[1000px]:mt-10 mt-20 px-[100px] mb-20 font-inter">
+  <div class="flex flex-col min-[1000px]:mt-10 mt-8 px-[20px] md:px-[100px] mb-20 font-inter">
 
     <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-3 animate-pulse">
       <div class="md:col-span-2 h-[280px] md:h-[420px] bg-gray-200 rounded-xl"></div>
@@ -115,30 +148,23 @@ const closeReview = () => {
     <div v-else-if="venue">
       <!-- IMAGE MODAL -->
       <div v-if="showModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
-        <!-- CLOSE -->
         <button
           class="absolute top-6 right-6 text-white text-3xl"
           @click="closeModal"
         >
           ✕
         </button>
-
-        <!-- PREV -->
         <button
           class="absolute left-6 text-white text-4xl"
           @click="prevImage"
         >
           ‹
         </button>
-
-        <!-- IMAGE -->
         <img
         v-if="activeImage"
         :src="activeImage.image_url"
         class="max-h-[85vh] max-w-[90vw] object-contain"
       />
-
-        <!-- NEXT -->
         <button
           class="absolute right-6 text-white text-4xl"
           @click="nextImage"
@@ -148,7 +174,7 @@ const closeReview = () => {
       </div>
 
       <!-- IMAGE GALLERY -->
-      <div class="mt-6 hidden lg:block">
+      <div class="mt-0">
 
         <!-- 1 IMAGE -->
         <div v-if="images.length === 1" class="w-full">
@@ -162,7 +188,7 @@ const closeReview = () => {
         </div>
 
         <!-- 2 IMAGES -->
-        <div v-else-if="venue.images.length === 2" class="grid grid-cols-10 gap-2">
+        <div v-else-if="images.length === 2" class="grid grid-cols-10 gap-2">
 
           <img
             v-if="images[0]"
@@ -181,7 +207,7 @@ const closeReview = () => {
         </div>
 
         <!-- 3+ IMAGES -->
-        <div v-else class="grid grid-cols-10 gap-2 h-[570px]">
+        <div v-else class="grid grid-cols-10 gap-2 h-[170px] md:h-[570px]">
 
           <img v-if="images[0]"
             :src="images[0].image_url"
@@ -209,19 +235,12 @@ const closeReview = () => {
         </div>
 
       </div>
-
-      <div class="hidden sm:block lg:hidden">
-        <img v-if="images[0]"
-            :src="images[0].image_url"
-            class="w-full h-full object-cover rounded-xl cursor-pointer"
-            @click="openModal(0)"
-          />
-      </div>
       
-      <div class="flex flex-col gap-7 mt-10 border-b pb-10">
-        <h1 class="text-3xl font-bold">{{ venue.name }}</h1>
-        <div class="flex">
-          <div class="flex flex-col w-1/2 gap-5 me-5">
+      <div class="flex flex-col gap-2 mt-4 md:mt-[130px] border-b pb-10">
+        <h1 class="text-xl md:text-3xl font-bold">{{ venue.name }}</h1>
+        <div class="flex flex-col md:flex-row">
+
+          <div class="flex flex-col w-full md:w-1/2 gap-5 me-5">
             <div class="flex flex-col gap-4">
               <div class="flex items-center gap-1">
                 <div class="flex gap-1">
@@ -255,7 +274,7 @@ const closeReview = () => {
             </div>
           </div>
 
-          <div class="flex flex-col w-1/2">
+          <div class="flex flex-col w-full md:w-1/2 mt-7 md:mt-0">
             <VenueMap v-if="venue"
               :lat="Number(venue.latitude)"
               :lng="Number(venue.longitude)"
@@ -267,6 +286,7 @@ const closeReview = () => {
               <Icon icon="logos:google-maps" width="18" height="18" />
             </NuxtLink>
           </div>
+
         </div>
       </div>
 
@@ -274,7 +294,7 @@ const closeReview = () => {
         <h2 class="text-xl font-semibold mb-4">Available Courts</h2>
            <CourtBooking v-if="venue" :venue="venue" />
       </div>
-      <div class="flex flex-col mt-20">
+      <div class="flex flex-col mt-20 ">
         <div class="flex gap-1 mb-2">
           <h1 class="text-sm font-semibold">User Review</h1>
           <p class="text-sm text-gray-400">({{ venue.booking.length }})</p>
@@ -322,69 +342,170 @@ const closeReview = () => {
               </span>
             </div>
           </div>
-          <button @click="openReview" class="text-sm text-gray-600 hover:text-gray-900">Show all review</button>
+          <button @click="openReview" class="hidden md:flex text-sm rounded-md p-2 px-4 font-semibold hover:text-gray-500">Show all review</button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="booking in displayedReview" class="flex flex-col gap-3 border p-5 rounded-md">
-              <div class="flex items-start gap-3">
-                <img :src="booking.user.profile_image_url" class="w-10 h-10 object-cover rounded-full">
-                <div class="flex flex-col w-full">
-                  <div class="flex justify-between items-start">
-                    <p class="text-sm font-semibold">{{ booking.user.name }}</p>
-                    <div class="flex gap-2">
-                      <p class="text-[12px]">{{ booking.rating.rate }}</p>
-                      <div class="flex items-center">
-                        <span v-for="i in 5" :key="i" class="text-orange-300">
-                          <svg v-if="i <= booking.rating.rate"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                            class="w-3 h-3"
-                          >
-                            <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
-                          </svg>
-  
-                          <svg v-else
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            class="w-3 h-3"
-                          >
-                            <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
-                          </svg>
-                        </span>
-                      </div>
+            <div class="flex items-start gap-3">
+              <img :src="booking.user.profile_image_url" class="w-10 h-10 object-cover rounded-full">
+              <div class="flex flex-col w-full">
+                <div class="flex justify-between items-start">
+                  <p class="text-sm font-semibold">{{ booking.user.name }}</p>
+                  <div class="flex gap-2">
+                    <p class="text-[12px]">{{ booking.rating.rate }}</p>
+                    <div class="flex items-center">
+                      <span v-for="i in 5" :key="i" class="text-orange-300">
+                        <svg v-if="i <= booking.rating.rate"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          class="w-3 h-3"
+                        >
+                          <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                        </svg>
+
+                        <svg v-else
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          class="w-3 h-3"
+                        >
+                          <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                        </svg>
+                      </span>
                     </div>
                   </div>
-                  <div class="flex">
-                    <p class="text-[12px] text-gray-600">{{ formatDate(booking.rating.updated_at) }}</p>
-                    <Icon icon="bi:dot" width="16" height="16" />
-                    <p class="text-[12px] text-gray-600">{{ booking.court.name }}</p>
+                </div>
+                <div class="flex">
+                  <p class="text-[12px] text-gray-600">{{ formatDate(booking.rating.updated_at) }}</p>
+                  <Icon icon="bi:dot" width="16" height="16" />
+                  <p class="text-[12px] text-gray-600">{{ booking.court.name }}</p>
+                </div>
+                <p v-if="booking.rating.review" class="text-sm text-gray-700 mt-3">{{ booking.rating.review }}</p>
+                <p v-else class="text-[12px] italic text-gray-400 mt-3">User didn’t leave a comment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button @click="openReview" class="flex md:hidden items-center justify-center text-sm bg-blue-900 rounded-md text-white p-2 font-semibold mt-5">Show all review</button>
+      </div>
+    </div>
+  </div>
+  
+  <div v-if="showReview" class="max-[1000px]:hidden fixed inset-0 z-50 flex items-center justify-center text-sm">
+    <div @click="closeReview" class="absolute inset-0 bg-black/50"></div>
+
+    <div class="w-[1000px] absolute px-5 pb-5 bg-white rounded-md flex flex-col gap-3">
+        <div class="flex justify-between border-b pb-3 mt-3">
+          <div class="flex gap-1 mb-2">
+            <h1 class="text-sm font-semibold">User Review</h1>
+            <p v-if="venue" class="text-sm text-gray-400">({{ venue.booking.length }})</p>
+          </div>
+          <button @click="closeReview" class="text-gray-500 hover:text-black"><Icon icon="ic:baseline-close" width="20" height="20" /></button>
+        </div>
+        <div class="flex flex-col mb-1">
+          <div v-if="venue" class="flex gap-4 items-center">
+            <div class="flex items-end">
+              <p class="text-2xl font-bold">{{ venue.avg_rating }}</p>
+              <p class="text-gray-500 ms-1">/ 5</p>
+            </div>
+            <div class="flex items-center gap-1">
+              <span v-for="i in 5" :key="i">
+                <svg v-if="i <= Math.floor(venue.avg_rating)"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  class="w-5 h-5 text-orange-400"
+                >
+                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                </svg>
+                <svg v-else-if="i === Math.floor(venue.avg_rating) + 1 && venue.avg_rating % 1 !== 0"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  stroke="#EC974F"
+                  class="w-5 h-5"
+                >
+                  <defs>
+                    <linearGradient id="halfGrad">
+                      <stop offset="50%" stop-color="#fb923c"/>
+                      <stop offset="50%" stop-color="white"/>
+                    </linearGradient>
+                  </defs>
+                  <path fill="url(#halfGrad)" d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                </svg>
+                <svg v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="#EC974F"
+                  viewBox="0 0 24 24"
+                  class="w-5 h-5"
+                >
+                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                </svg>
+
+              </span>
+            </div>
+          </div>
+      </div>
+      <div class="grid grid-cols-3 gap-4 max-h-[600px] md:max-h-[500px] sm:max-h-[900px] overflow-y-auto">
+        <div v-for="booking in venue?.booking" class="flex flex-col gap-3 border p-5 rounded-md">
+          <div class="flex items-start gap-3">
+            <img :src="booking.user.profile_image_url" class="w-10 h-10 object-cover rounded-full">
+            <div class="flex flex-col w-full">
+              <div class="flex justify-between">
+                <p class="text-sm font-semibold">{{ booking.user.name }}</p>
+                <div class="flex gap-2">
+                  <p class="text-[12px]">{{ booking.rating.rate }}</p>
+                  <div class="flex items-center">
+                    <span v-for="i in 5" :key="i" class="text-orange-300">
+                      <svg v-if="i <= booking.rating.rate"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        class="w-3 h-3"
+                      >
+                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                      </svg>
+
+                      <svg v-else
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        class="w-3 h-3"
+                      >
+                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.917 1.512 8.277L12 18.897l-7.448 4.603 1.512-8.277L0 9.306l8.332-1.151z"/>
+                      </svg>
+                    </span>
                   </div>
-                  <p v-if="booking.rating.review" class="text-sm text-gray-700 mt-3">{{ booking.rating.review }}</p>
-                  <p v-else class="text-[12px] italic text-gray-400 mt-3">User didn’t leave a comment</p>
                 </div>
               </div>
+              <div class="flex mt-1">
+                <p class="text-[12px] text-gray-600">{{ formatDate(booking.rating.updated_at) }}</p>
+                <Icon icon="bi:dot" width="16" height="16" />
+                <p class="text-[12px] text-gray-600">{{ booking.court.name }}</p>
+              </div>
+              <p v-if="booking.rating.review" class="text-sm text-gray-700 mt-3">{{ booking.rating.review }}</p>
+              <p v-else class="text-[12px] italic text-gray-400 mt-3">User didn’t leave a comment</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div v-if="showReview" class="fixed inset-0 bg-black/50 z-50"></div>
-
-  <Transition 
-    enter-active-class="transition duration-300"
-    enter-from-class="translate-y-full"
-    enter-to-class="translate-y-0"
-    leave-active-class="transition duration-300"
-    leave-from-class="translate-y-0"
-    leave-to-class="translate-y-full">
-    <div v-if="showReview" class="fixed inset-0 z-50 flex items-end justify-center font-inter">
-      <div class="flex flex-col gap-5 bg-white w-full min-h-[700px] pb-10">
-        <button @click="closeReview"><Icon icon="grommet-icons:down" width="25" height="25" class="text-center w-full bg-blue-900 text-gray-300 border-b hover:text-gray-100" /></button>
-        <div class="px-[100px]">
+  
+  <div v-if="showReview" class="md:hidden fixed inset-0 z-50">
+    <div @click="closeReview" class="absolute inset-0 bg-black/50"></div>
+    
+    <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-2xl py-5 transition-transform duration-300 ease-out"
+        :style="{ height: '80%', transform: isDragging ? `translateY(${Math.max(0, currentY - startY)}px)` : 'translateY(0)'}"
+        @touchstart="onTouchStart"
+        @touchmove="onTouchMove"
+        @touchend="onTouchEnd"
+    >
+        <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
+        <div ref="scrollContainer" class="flex flex-col h-full justify-between gap-2 p-4 overflow-y-auto">
           <div class="flex flex-col mb-5">
               <div class="flex gap-1 mb-2">
                 <h1 class="text-sm font-semibold">User Review</h1>
@@ -433,7 +554,7 @@ const closeReview = () => {
                 </div>
               </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 max-h-[600px] md:max-h-[500px] sm:max-h-[900px] overflow-y-auto pe-4">
+          <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 max-h-[600px] md:max-h-[500px] sm:max-h-[900px]">
             <div v-for="booking in venue?.booking" class="flex flex-col gap-3 border p-5 rounded-md">
               <div class="flex items-start gap-3">
                 <img :src="booking.user.profile_image_url" class="w-10 h-10 object-cover rounded-full">
@@ -478,9 +599,8 @@ const closeReview = () => {
             </div>
           </div>
         </div>
-      </div>
     </div>
-  </Transition>
+  </div>
 
 </template>
 
