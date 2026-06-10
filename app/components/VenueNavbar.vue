@@ -28,7 +28,7 @@ const isSetting = computed(() =>
   route.path.startsWith('/venue/setting')
 )
 const isHelp = computed(() => 
-  route.path.startsWith('/venue/help')
+  route.path.startsWith('/venue/cs')
 )
 const isNotification = computed(() => 
   route.path.startsWith('/venue/notification')
@@ -60,6 +60,7 @@ const closeMenu = () => mobileMenu.value = false
         <p v-else-if="isEmployee">Employment</p>
         <p v-else-if="isMessage">Message</p>
         <p v-else-if="isSetting">Setting</p>
+        <p v-else-if="isHelp">Customer Service</p>
       </div>
       <button class="min-[1000px]:hidden" @click="toggleMenu">
           <Icon icon="mdi:menu" class="w-5 h-5"/>
