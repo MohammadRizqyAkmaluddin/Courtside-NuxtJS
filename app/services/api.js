@@ -1,5 +1,5 @@
 export const api = $fetch.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: process.env.API_BASE_URL,
   onRequest({ options }) {
     const token =
     localStorage.getItem('venue_token') ||
