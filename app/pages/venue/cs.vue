@@ -3,6 +3,7 @@ definePageMeta({
   layout: 'venue'
 })
 
+import { Icon } from '@iconify/vue'
 import { ref, nextTick } from 'vue'
 import { api } from '~/services/api'
 import type { ApiResponse, Venue } from '~/types'
@@ -79,7 +80,7 @@ onMounted(fetchProfile)
 
     <!-- HEADER -->
     <div class="p-4 border-b bg-white shrink-0">
-      <h1 class="text-lg font-semibold">Courtside AI Assistant</h1>
+      <h1 class="text-lg font-semibold flex items-center gap-2">Courtside AI Assistant <Icon icon="streamline:customer-support-1" width="16" height="16" /></h1>
       <p class="text-sm text-gray-500">
         Feel free to ask about anything in venue management system
       </p>
@@ -141,3 +142,7 @@ onMounted(fetchProfile)
 
   </div>
 </template>
+
+
+
+

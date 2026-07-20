@@ -1,5 +1,11 @@
 import type { st } from "vue-router/dist/router-CWoNjPRp.mjs"
 
+export interface ApiResponse<T> {
+  success: boolean
+  data: T
+  total_price: any
+}
+
 export interface City {
   id: number
   city: string
@@ -58,6 +64,8 @@ export interface Venue {
   booking: Booking[]
   avg_rating: number
   total_review: number
+  min_price: number
+  max_price: number
 }
 
 export interface VenueImage {
@@ -142,6 +150,7 @@ export interface User {
   name: string
   email: string
   phone: string
+  bod: string
   profile_image_url: string
 }
 
@@ -381,8 +390,82 @@ export interface Employee {
   created_at: Date
 }
 
-export interface ApiResponse<T> {
-  success: boolean
-  data: T
-  total_price: any
+export interface OpenSparring {
+  id: number
+  user_id: number
+  venue_id: number
+  sport_type_id: number
+  city_id: number
+  description: string
+  level: Level
+  user: User
+  venue: Venue
+  sport_type: SportType
+  city: City
+  datelist: Datelist[]
+  created_at: string
+  updated_at: string
+}
+
+export interface Datelist {
+  id: number
+  open_sparring_id: number
+  date: String
+}
+
+export interface LastMessage {
+  type: string
+  is_mine: boolean
+  message: string | null
+  sparring_id: number | null
+  created_at: string
+  preview: string | null
+}
+
+export interface Conversations {
+  conversation_id: number
+  unread: number
+  user: User
+  last_message: LastMessage
+}
+
+export interface Message {
+  id: number
+  type: 'text' | 'sparring_invitation'
+  is_read: boolean
+  message: string | null
+  is_mine: boolean
+  sender: {
+    id: number
+    name: string
+    profile_image_url: string
+  }
+  sparring: {
+    id: number
+    sparring_date: string
+    status: string
+    sport_type: {
+      id: number
+      type: string
+    }
+    city: {
+      city: string
+      province: string
+    }
+    level: {
+      level: string
+    }
+    open_sparring: {
+      id: number
+      description: string
+      status: string
+    }
+  } | null
+  created_at: string
+}
+
+export interface Messages {
+  conversation_id: number
+  user: User
+  messages: Message
 }

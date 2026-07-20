@@ -410,11 +410,11 @@ const backStep = () => {
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 border p-5 rounded-md mb-5">
-                    <p class="text-sm flex items-center gap-2">
+                    <div class="text-sm flex items-center gap-2">
                         <Icon icon="heroicons:calendar-date-range" width="17" height="17"/>
                         {{ dayLabel(community.day_of_week)  }}, {{ formatTime(community.start_time) }} - {{ formatTime(community.end_time) }} 
                         <p class="text-sm text-gray-400">( total 4 sessions a month )</p>
-                    </p>
+                    </div>
                     <div class="flex items-center gap-2 mb-5">
                         <Icon icon="f7:sportscourt" width="16" height="16" />
                         <p v-if="community.venue" class="text-sm">{{ community.venue.name }}</p>

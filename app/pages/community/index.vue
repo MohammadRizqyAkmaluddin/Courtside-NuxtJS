@@ -74,7 +74,7 @@ onMounted(fetchSportTypes)
 </script>
 
 <template>
-  <div class="flex flex-col mx-[40px] sm:mx-[40px] lg:mx-[100px] mt-16 gap-5 font-inter">
+  <div class="flex flex-col mx-[20px] sm:mx-[20px] lg:mx-[100px] mt-16 gap-5 font-inter">
 
     <div class="flex flex-col md:flex-row items-stratch w-full justify-between gap-2 border-b pb-7">
       <div class="flex items-center border border-gray-300 px-2 gap-2 rounded-full text-sm w-full">
@@ -82,7 +82,7 @@ onMounted(fetchSportTypes)
         <input 
           v-model="filters.search"
           @input="page = 1; fetchCommunities()"
-          placeholder="Search venue name"
+          placeholder="Search community name"
           class="py-2 outline-none w-full"
         />
       </div>
@@ -127,7 +127,7 @@ onMounted(fetchSportTypes)
     </div>
 
     <div class="flex justify-between items-center">
-      <p class="text-sm text-gray-400">Choose the venue that suits you best</p>
+      <p class="text-sm text-gray-400">Choose the community that suits you best</p>
       <div class="flex gap-2 items-center">
         <p class="text-gray-400 text-sm">Showing</p>
         <p class="text-sm">{{ pagination.total }} venue result</p>

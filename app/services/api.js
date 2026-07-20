@@ -1,5 +1,22 @@
+// export const api = $fetch.create({
+//   baseURL: process.env.API_BASE_URL,
+//   onRequest({ options }) {
+//     const token =
+//     localStorage.getItem('venue_token') ||
+//     localStorage.getItem('user_token')
+
+//     if (token) {
+//       options.headers = {
+//         ...options.headers,
+//         Authorization: `Bearer ${token}`
+//       }
+//     }
+//   }
+// })
+
+
 export const api = $fetch.create({
-  baseURL: process.env.API_BASE_URL,
+  baseURL: 'http://localhost:8000/api',
   onRequest({ options }) {
     const token =
     localStorage.getItem('venue_token') ||

@@ -784,11 +784,11 @@ onMounted(fetchBankAccount)
         <div class="flex w-full gap-4">
             <div v-if="venueImage" class="grid grid-cols-3 gap-2">
                 <button @click="viewImage(img)" v-for="img in venueImage" :key="img.id" class="relative">
-                    <button @click.stop="activeDropdown = activeDropdown === img.id ? null : img.id"
+                    <div @click.stop="activeDropdown = activeDropdown === img.id ? null : img.id"
                         class="absolute top-2 right-2 z-20 bg-black/50 text-white rounded-full hover:bg-black"
                     >
                         <Icon icon="qlementine-icons:menu-dots-16" width="25" height="25" />
-                    </button>
+                    </div>
 
                     <div v-if="activeDropdown === img.id" class="absolute top-10 right-2 z-30 bg-white border shadow-lg rounded-md text-[12px] w-[150px] overflow-hidden">
                         <button @click.stop="selectPrimary(img)" v-if="!img.is_primary" class="w-full p-2 border-b hover:bg-gray-100"> 

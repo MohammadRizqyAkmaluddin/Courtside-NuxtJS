@@ -82,8 +82,8 @@ const isCommunityActive = computed(() =>
 const isSparringActive = computed(() =>
     route.path.startsWith('/sparring')
 )
-const isLeagueActive = computed(() =>
-    route.path.startsWith('/cup')
+const isMessageActive = computed(() =>
+    route.path.startsWith('/message')
 )
 const isActivityActive = computed(() =>
     route.path.startsWith('/user/activity')
@@ -95,6 +95,7 @@ const openDropdown = () => {
 const closeDropdown = () => {
   showDropdown.value = false
 }
+
 const handleClickOutside = (e: any) => {
   if (!e.target.closest('.relative')) {
     showDropdown.value = false
@@ -143,7 +144,7 @@ onMounted(fetchHolding)
             <NuxtLink to="/court" :class="isCourtActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Explore Venue</NuxtLink>
             <NuxtLink to="/community" :class="isCommunityActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Sport Community</NuxtLink>
             <NuxtLink to="/sparring" :class="isSparringActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Find Sparring</NuxtLink>
-            <NuxtLink to="/cup" :class="isLeagueActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Courtside Cup</NuxtLink>
+            <NuxtLink v-if="authUser.user" to="/message" :class="isMessageActive ? 'text-black' : 'text-gray-600'" class="font-inter font-medium text-sm hover:text-black transition-colors">Conversation</NuxtLink>
             <NuxtLink v-if="!authUser.user" to="/venue/login" target="_blank" class="font-inter font-medium text-sm text-gray-600 hover:text-black transition-colors">Venue Management App</NuxtLink>
             <NuxtLink v-if="authUser.user" to="/user/activity"
                 :class="isActivityActive ? 'text-black' : 'text-gray-600'"
@@ -204,8 +205,8 @@ onMounted(fetchHolding)
                     <NuxtLink @click="closeMenu" to="/sparring" :class="isSparringActive ? 'bg-blue-900 text-white rounded-tr-md rounded-br-md' : 'text-blue-900'" class="p-4 px-5 flex items-center gap-2">
                         Find Sparring
                     </NuxtLink>
-                    <NuxtLink @click="closeMenu" to="/cup" :class="isLeagueActive ? 'bg-blue-900 text-white rounded-tr-md rounded-br-md' : 'text-blue-900'" class="p-4 px-5 flex items-center gap-2">
-                        Courtside Cup
+                    <NuxtLink v-if="authUser.user" @click="closeMenu" to="/message" :class="isMessageActive ? 'bg-blue-900 text-white rounded-tr-md rounded-br-md' : 'text-blue-900'" class="p-4 px-5 flex items-center gap-2">
+                        Conversation
                     </NuxtLink>
                     <NuxtLink v-if="!authUser.user" @click="closeMenu" to="/venue/login" target="_blank" class="border-t p-4 px-5 flex items-center gap-2">
                         Venue Management App

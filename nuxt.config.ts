@@ -2,7 +2,12 @@
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
-      apiBaseUrl: ''
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
+      pusherKey: process.env.NUXT_PUBLIC_PUSHER_APP_KEY || '',
+      pusherCluster: process.env.NUXT_PUBLIC_PUSHER_APP_CLUSTER || '',
+      pusherHost: process.env.NUXT_PUBLIC_PUSHER_HOST || '',
+      pusherPort: Number(process.env.NUXT_PUBLIC_PUSHER_PORT || 6001),
+      pusherScheme: process.env.NUXT_PUBLIC_PUSHER_SCHEME || 'http'
     }
   },
   compatibilityDate: '2025-07-15',
