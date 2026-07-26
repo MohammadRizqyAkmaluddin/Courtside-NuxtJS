@@ -37,8 +37,8 @@ The app integrates with a backend API to handle data such as venue listings, sch
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/username/courtside-fe.git
-cd courtside-fe
+git clone https://github.com/MohammadRizqyAkmaluddin/Courtside-NuxtJS.git
+cd Courtside-NuxtJS
 ```
 
 ### 2. Install dependencies
@@ -89,5 +89,5 @@ Make sure the backend service is running and accessible via the configured base 
 
 ## Author
 
-Rizqy Akmal
+Mohammad Rizqy Akmaluddin
 https://github.com/MohammadRizqyAkmaluddin
